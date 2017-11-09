@@ -2,6 +2,67 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
+            <ems_pay_general>
+                <model>EmsPayGeneralFacade</model>
+                <title>EMS Global Configuration</title>
+                <operation_mode>test</operation_mode>
+                <log_enabled>1</log_enabled>
+                <checkout_option>classic</checkout_option>
+                <shared_secret_test backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <shared_secret_production backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+            </ems_pay_general>
+            <ems_pay_cc>
+                <model>EmsPayCreditCardFacade</model>
+                <active>0</active>
+                <title>Credit card</title>
+                <order_status>processing</order_status>
+                <cctypes>ems_pay_visa,ems_pay_mastercard,ems_pay_diners</cctypes>
+                <enable_3dsecure>1</enable_3dsecure>
+            </ems_pay_cc>
+            <ems_pay_klarna>
+                <model>EmsPayKlarnaFacade</model>
+                <active>0</active>
+                <title>Klarna Invoice</title>
+                <order_status>processing</order_status>
+            </ems_pay_klarna>
+            <ems_pay_paypal>
+                <model>EmsPayPayPalFacade</model>
+                <active>0</active>
+                <title>Paypal</title>
+                <order_status>processing</order_status>
+            </ems_pay_paypal>
+            <ems_pay_sofort>
+                <model>EmsPaySofortFacade</model>
+                <active>0</active>
+                <title>Sofort</title>
+                <order_status>processing</order_status>
+            </ems_pay_sofort>
+            <ems_pay_masterpass>
+                <model>EmsPayMasterpassFacade</model>
+                <active>0</active>
+                <title>Masterpass</title>
+                <order_status>processing</order_status>
+            </ems_pay_masterpass>
+            <ems_pay_maestro>
+                <model>EmsPayMaestroFacade</model>
+                <active>0</active>
+                <title>Maestro</title>
+                <order_status>processing</order_status>
+            </ems_pay_maestro>
+            <ems_pay_ideal>
+                <model>EmsPayIdealFacade</model>
+                <active>0</active>
+                <title>iDEAL</title>
+                <order_status>processing</order_status>
+                <bank_selection_enabled>1</bank_selection_enabled>
+            </ems_pay_ideal>
+            <ems_pay_bancontact>
+                <model>EmsPayBancontactFacade</model>
+                <active>0</active>
+                <title>Bancontact</title>
+                <order_status>processing</order_status>
+                <bank_selection_enabled>1</bank_selection_enabled>
+            </ems_pay_bancontact>
         </payment>
     </default>
 </config>
