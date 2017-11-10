@@ -7,7 +7,7 @@ use Magento\EMS\Pay\Gateway\Config\Config;
 
 class CcType extends \Magento\Payment\Model\Source\Cctype
 {
-    private $config;
+    protected $config;
 
     public function __construct(Config $config)
     {
