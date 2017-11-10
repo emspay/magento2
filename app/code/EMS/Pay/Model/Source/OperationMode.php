@@ -6,7 +6,7 @@
  * Time: 13:41
  */
 
-namespace Magento\EMS\Pay\Model\Adminhtml\Source;
+namespace Magento\EMS\Pay\Model\Source;
 
 use \Magento\EMS\Pay\Gateway\Config\Config;
 

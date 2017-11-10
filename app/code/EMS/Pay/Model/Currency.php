@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Magento\EMS\Pay\Model\Adminhtml;
+namespace Magento\EMS\Pay\Model;
 
 
 class Currency

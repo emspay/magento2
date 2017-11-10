@@ -2,7 +2,11 @@
 
 namespace Magento\EMS\Pay\Gateway\Config;
 
-class Config extends \Magento\Payment\Gateway\Config\Config
+use Magento\EMS\Pay\Model\Currency;
+use Magento\EMS\Pay\Model\MobileDetect;
+use Magento\TestFramework\Event\Magento;
+
+class Config #extends \Magento\Payment\Gateway\Config\Config
 {
     const MODE_TEST = 'test';
     const MODE_PRODUCTION = 'production';
@@ -69,10 +73,14 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     protected $_storeId = null;
 
-    /**
-     * @var EMS_Pay_Helper_Data
-     */
-    protected $_helper;
+    protected $_storeManager;
+
+    protected $_scopeConfig;
+
+    protected $_currency;
+    
+    protected $_detect;
+
 
     /**
      * List of CC-based payment methods
@@ -111,7 +119,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     protected $_bancontactSupportedCountries = [
         'BE', // Belgium
-
     ];
 
     /**
@@ -228,12 +235,18 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     ];
 
     /**
-     * EMS_Pay_Model_Config constructor.
+     * \Magento\EMS\Pay\Gateway\Config\Config constructor.
      * @param array $params first element should be payment method code, second element should be store id
+     * \Magento\Store\Model\StoreManagerInterface storeManager
      */
-    public function __construct(array $params = [])
+    public function __construct(
+        array $params = [],
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        Currency $currency,
+        MobileDetect $detect
+        )
     {
-        $this->_helper = Mage::helper('ems_pay');
 
         if ($params) {
             $this->setMethod(array_shift($params));
@@ -241,6 +254,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config
                 $this->setStoreId(array_shift($params));
             }
         }
+        $this->_storeManager = $storeManager;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_currency = $currency;
+        $this->_detect = $detect;
     }
 
     /**
@@ -263,7 +280,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         $configPath = $this->_isProductionMode($storeId) ?
             self::XML_CONFIG_STORE_NAME_PRODUCTION :
             self::XML_CONFIG_STORE_NAME_TEST;
-        return Mage::getStoreConfig($configPath, $storeId);
+        return $this->_scopeConfig->getValue($configPath, $storeId);
     }
 
     /**
@@ -275,7 +292,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         $configPath = $this->_isProductionMode() ?
             self::XML_CONFIG_SHARED_SECRET_PRODUCTION :
             self::XML_CONFIG_SHARED_SECRET_TEST;
-        return Mage::getStoreConfig($configPath, $storeId);
+        return $this->_scopeConfig->getValue($configPath, $storeId);
     }
 
     /**
@@ -305,7 +322,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getCheckoutOption($storeId = null)
     {
-        return Mage::getStoreConfig(self::XML_CONFIG_CHECKOUT_OPTION, $storeId);
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_CHECKOUT_OPTION, $storeId);
     }
 
     /**
@@ -325,7 +342,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isDebuggingEnabled($storeId = null)
     {
-        return Mage::getStoreConfigFlag(self::XML_CONFIG_LOGGING_ENABLED, $storeId);
+        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_LOGGING_ENABLED, $storeId);
     }
 
     /**
@@ -334,7 +351,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     protected function _isProductionMode($storeId = null)
     {
-        return Mage::getStoreConfig(self::XML_CONFIG_OPERATION_MODE, $storeId) == self::MODE_PRODUCTION;
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_OPERATION_MODE, $storeId) == self::MODE_PRODUCTION;
     }
 
     /**
@@ -345,7 +362,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isCurrencySupported($currencyCode)
     {
-        $isSupported = Mage::getModel('ems_pay/currency')->isCurrencySupported($currencyCode);
+
+        $isSupported =$this->_currency->isCurrencySupported($currencyCode);
         $allowedCurrencies = $this->getConfigData(self::CONFIG_FIELD_DATA_SPECIFIC_CURRENCY);
         if ((string)$allowedCurrencies === '') {
             return $isSupported;
@@ -383,7 +401,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isIdealIssuingBankSelectionEnabled()
     {
-        return Mage::getStoreConfigFlag(self::XML_CONFIG_IDEAL_BANK_SELECTION);
+        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_IDEAL_BANK_SELECTION);
     }
 
 
@@ -392,7 +410,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isBancontactIssuingBankSelectionEnabled()
     {
-        return Mage::getStoreConfigFlag(self::XML_CONFIG_BANCONTACT_BANK_SELECTION);
+        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_BANCONTACT_BANK_SELECTION);
     }
 
     /**
@@ -404,7 +422,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         $banks = $this->_idealIssuingBanks;
         foreach ($banks as $code => $name) {
-            $banks[$code] = $this->_helper->__($name);
+            $banks[$code] = __($name);
         }
 
         return $banks;
@@ -419,7 +437,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         $banks = $this->_bancontactIssuingBanks;
         foreach ($banks as $code => $name) {
-            $banks[$code] = $this->_helper->__($name);
+            $banks[$code] = __($name);
         }
 
         return $banks;
@@ -450,7 +468,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         $cards = $this->_maestroCardTypes;
         foreach ($cards as $code => $name) {
-            $cards[$code] = $this->_helper->__($name);
+            $cards[$code] = __($name);
         }
 
         return $cards;
@@ -473,7 +491,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         $cards = $this->_creditCardTypes;
         foreach ($cards as $code => $name) {
-            $cards[$code] = $this->_helper->__($name);
+            $cards[$code] = __($name);
         }
 
         return $cards;
@@ -487,7 +505,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getEnabledCreditCardTypes()
     {
         $availableCards = $this->getAvailableCreditCardTypes();
-        $allowedCardTypes = Mage::getStoreConfig(self::XML_CONFIG_CC_TYPES);
+        $allowedCardTypes = $this->_scopeConfig->getValue(self::XML_CONFIG_CC_TYPES);
         if ((string)$allowedCardTypes === '') {
             return [];
         }
@@ -517,7 +535,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isCreditCard3DSecureEnabled()
     {
-        return Mage::getStoreConfigFlag(self::XML_CONFIG_CC_3DSECURE);
+        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_CC_3DSECURE);
     }
 
     /**
@@ -528,24 +546,23 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isMobileMode()
     {
-        $detect = new Mobile_Detect();
-        return $detect->isMobile();
+        return $this->_detect->isMobile();
     }
 
-    /**
-     * Returns current locale or the default one if current is not supported by EMS
-     *
-     * @return string
-     */
-    public function getLanguage()
-    {
-        $lang = Mage::app()->getLocale()->getLocaleCode();
-        if (in_array($lang, $this->_supportedLanguages)) {
-            return $lang;
-        }
-
-        return $this->_defaultLanguage;
-    }
+//    /**
+//     * Returns current locale or the default one if current is not supported by EMS
+//     *
+//     * @return string
+//     */
+//    public function getLanguage()
+//    {
+//        $lang = Mage::app()->getLocale()->getLocaleCode();
+//        if (in_array($lang, $this->_supportedLanguages)) {
+//            return $lang;
+//        }
+//
+//        return $this->_defaultLanguage;
+//    }
 
     /**
      * Returns payment method logo file name
@@ -559,15 +576,15 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         return isset($this->_logosMap[$methodCode]) ? $this->_logosMap[$methodCode] : '';
     }
 
-    /**
-     * Returns log file name for current method
-     *
-     * @return string
-     */
-    public function getLogFile()
-    {
-        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
-    }
+//    /**
+//     * Returns log file name for current method
+//     *
+//     * @return string
+//     */
+//    public function getLogFile()
+//    {
+//        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
+//    }
 
     /**
      * @param string $field
@@ -576,20 +593,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getConfigData($field)
     {
         $path = 'payment/' . $this->_methodCode . '/' . $field;
-        return Mage::getStoreConfig($path, $this->_storeId);
+        return $this->_scopeConfig->getValue($path, $this->_storeId);
     }
 
-    /**
-     * @param string|Mage_Payment_Model_Method_Abstract $method
-     */
-    public function setMethod($method)
-    {
-        if ($method instanceof Mage_Payment_Model_Method_Abstract) {
-            $this->_methodCode = $method->getCode();
-        } elseif (is_string($method)) {
-            $this->_methodCode = $method;
-        }
-    }
+//    /**
+//     * @param string|Mage_Payment_Model_Method_Abstract $method
+//     */
+//    public function setMethod($method)
+//    {
+//        if ($method instanceof \Magento\Payment\Model\MethodInterface) {
+//            $this->_methodCode = $method->getCode();
+//        } elseif (is_string($method)) {
+//            $this->_methodCode = $method;
+//        }
+//    }
 
     /**
      * @param int $storeId

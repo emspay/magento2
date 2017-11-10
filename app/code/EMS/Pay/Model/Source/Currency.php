@@ -6,7 +6,7 @@
  * Time: 11:27
  */
 
-namespace Magento\EMS\Pay\Model\Adminhtml\Source;
+namespace Magento\EMS\Pay\Model\Source;
 
 
 use Magento\Config\Model\Config\Source\Locale\Currency\All;
@@ -19,7 +19,7 @@ class Currency extends All
 
     public function __construct(
 
-        \Magento\EMS\Pay\Model\Adminhtml\Currency $currency
+        \Magento\EMS\Pay\Model\Currency $currency
     )
     {
         $this->_options = parent::toOptionArray();
