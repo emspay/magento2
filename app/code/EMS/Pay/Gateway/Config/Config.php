@@ -599,4 +599,3 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         $this->_storeId = (int) $storeId;
     }
 }
- 
