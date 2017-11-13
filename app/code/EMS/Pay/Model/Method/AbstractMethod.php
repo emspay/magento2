@@ -59,7 +59,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public function __construct(
         Currency $currency,
-        Hash $hashHandler,
+        Hash $hashHandler
 
     )
     {
