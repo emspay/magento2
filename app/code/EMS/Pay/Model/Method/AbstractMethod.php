@@ -59,7 +59,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public function __construct(
         Currency $currency,
-        Hash $hashHandler
+        Hash $hashHandler,
+
     )
     {
         $this->_currency = $currency;
@@ -81,11 +82,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param string $paymentAction
      * @param Varien_Object
      *
-     * @return EMS_Pay_Model_Method_Abstract
+     * @return \Magento\EMS\Pay\Model\Method\AbstractMethod
      */
     public function initialize($paymentAction, $stateObject)
     {
-        $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+        $state = \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT;
         $stateObject->setState($state);
         $stateObject->setStatus('pending_payment');
         $stateObject->setIsNotified(false);
@@ -116,7 +117,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public function getRedirectFormFields()
     {
@@ -148,7 +149,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $fields = array_merge($fields, $this->_getAddressRequestFields());
             $fields = array_merge($fields, $this->_getMethodSpecificRequestFields());
             $this->_saveTransactionData();
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $debugData['exception'] = $ex->getMessage() . ' in ' . $ex->getFile() . ':' . $ex->getLine();
             $this->_debug($debugData);
             throw $ex;
@@ -474,11 +475,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @return Mage_Sales_Model_Order
+     * @return \Magento\Sales\Model\Order
      */
     protected function _getOrder()
     {
-        return Mage::helper('ems_pay/checkout')->getLastRealOrder();
+        return \Magento\Sales\Model\Order;->getLastRealOrder();
     }
 
     /**
@@ -605,7 +606,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 $params[] = is_object($store) ? $store->getId() : $store;
             }
 
-            $this->_config = Mage::getModel('ems_pay/config', $params);
+            $this->_config = new Config ($params);
+//            $this->_config = Mage::getModel('ems_pay/config', $params);
         }
 
         return $this->_config;
@@ -632,7 +634,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * Adds transaction specific information to payment object.
      * It's ment to be overridden and used by classes that inherit from this one
      *
-     * @param EMS_Pay_Model_Response $transactionResponse
+     * @param Response $transactionResponse
      */
     public function addTransactionData(Response $transactionResponse)
     {

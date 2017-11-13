@@ -15,13 +15,15 @@ class Hash
     const HASH_ALGORITHM_SHA256 = 'SHA256';
 
     /**
-     * @var EMS_Pay_Model_Config
+     * @var Config
      */
     protected $_config;
 
-    public function __construct(Config $config)
+    public function __construct(
+        Config $config,
+    )
     {
-        $this->_config = $config;
+//        $this->_config = $config;
     }
     /**
      * Generates payment gateway request hash

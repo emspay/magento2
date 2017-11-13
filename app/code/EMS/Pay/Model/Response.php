@@ -62,14 +62,13 @@ class Response
 
     public function __construct(
        array $response,
-       Hash $hashHandler,
        Currency $currency
 
        
     )
     {
         $this->_response = $response;
-        $this->_hashHandler = $hashHandler;
+        $this->_hashHandler = new Hash();
         $this->_currency = $currency;
     }
 

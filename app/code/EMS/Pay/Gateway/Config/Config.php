@@ -4,9 +4,10 @@ namespace Magento\EMS\Pay\Gateway\Config;
 
 use Magento\EMS\Pay\Model\Currency;
 use Magento\EMS\Pay\Model\MobileDetect;
+use Magento\Payment\Model\Method\ConfigInterface;
 use Magento\TestFramework\Event\Magento;
 
-class Config #extends \Magento\Payment\Gateway\Config\Config
+class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
 {
     const MODE_TEST = 'test';
     const MODE_PRODUCTION = 'production';
@@ -80,6 +81,8 @@ class Config #extends \Magento\Payment\Gateway\Config\Config
     protected $_currency;
     
     protected $_detect;
+
+    protected $_config;
 
 
     /**
@@ -238,17 +241,24 @@ class Config #extends \Magento\Payment\Gateway\Config\Config
      * \Magento\EMS\Pay\Gateway\Config\Config constructor.
      * @param array $params first element should be payment method code, second element should be store id
      * \Magento\Store\Model\StoreManagerInterface storeManager
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param Currency $currency
+     * @param MobileDetect $detect
      */
     public function __construct(
-        array $params = [],
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         Currency $currency,
-        MobileDetect $detect
+        MobileDetect $detect,
+        array $params = []
+
         )
     {
-
+        $this->_config = $configFactory;
         if ($params) {
+            $this->_config = $configFactory->create();
             $this->setMethod(array_shift($params));
             if ($params) {
                 $this->setStoreId(array_shift($params));
@@ -596,17 +606,17 @@ class Config #extends \Magento\Payment\Gateway\Config\Config
         return $this->_scopeConfig->getValue($path, $this->_storeId);
     }
 
-//    /**
-//     * @param string|Mage_Payment_Model_Method_Abstract $method
-//     */
-//    public function setMethod($method)
-//    {
-//        if ($method instanceof \Magento\Payment\Model\MethodInterface) {
-//            $this->_methodCode = $method->getCode();
-//        } elseif (is_string($method)) {
-//            $this->_methodCode = $method;
-//        }
-//    }
+    /**
+     * @param string|\Magento\Payment\Model\MethodInterface $method
+     */
+    public function setMethod($method)
+    {
+        if ($method instanceof \Magento\Payment\Model\Method\AbstractMethod) {
+            $this->_methodCode = $method->getCode();
+        } elseif (is_string($method)) {
+            $this->_methodCode = $method;
+        }
+    }
 
     /**
      * @param int $storeId
