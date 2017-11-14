@@ -6,13 +6,13 @@
  * Time: 13:04
  */
 
-namespace Magento\EMS\Pay\Model\Method\Cc;
+namespace EMS\Pay\Model\Method\Cc;
 
-use \Magento\EMS\Pay\Model\Info;
-use Magento\EMS\Pay\Model\Response;
+use EMS\Pay\Model\Info;
+use EMS\Pay\Model\Response;
 
 
-abstract class AbstractMethod extends \Magento\EMS\Pay\Model\Method\AbstractMethod
+abstract class AbstractMethod extends \EMS\Pay\Model\Method\AbstractMethod
 {
     /**
      * Name of field used in form

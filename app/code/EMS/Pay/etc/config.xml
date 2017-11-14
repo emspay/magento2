@@ -12,7 +12,7 @@
                 <shared_secret_production backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </ems_pay_general>
             <ems_pay_cc>
-                <model>EmsPayCreditCardFacade</model>
+                <model>\Magento\EMS\Pay\Model\Method\Cc</model>
                 <active>0</active>
                 <title>Credit card</title>
                 <order_status>processing</order_status>

@@ -1,12 +1,12 @@
 <?php
 
-namespace Magento\EMS\Pay\Model\Method;
+namespace EMS\Pay\Model\Method;
 
-use \Magento\EMS\Pay\Model\Currency;
-use \Magento\EMS\Pay\Gateway\Config\Config;
-use \Magento\EMS\Pay\Model\Hash;
-use \Magento\EMS\Pay\Model\Response;
-use \Magento\EMS\Pay\Model\Info;
+use EMS\Pay\Model\Currency;
+use EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Model\Hash;
+use EMS\Pay\Model\Response;
+use EMS\Pay\Model\Info;
 use \Magento\Checkout\Model\Session;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Sales\Model\Order;
@@ -118,7 +118,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param string $paymentAction
      * @param Varien_Object
      *
-     * @return \Magento\EMS\Pay\Model\Method\AbstractMethod
+     * @return \EMS\Pay\Model\Method\AbstractMethod
      */
     public function initialize($paymentAction, $stateObject)
     {
@@ -458,7 +458,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Item $item
+     * @param \Magento\Sales\Model\Order\Item $item
      * @return float|int
      */
     protected function _getItemPriceInclTax($item)
@@ -475,7 +475,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Item $item
+     * @param \Magento\Sales\Model\Order\Item $item
      * @return float|int
      */
     protected function _getItemPrice($item)
@@ -484,7 +484,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Item $item
+     * @param \Magento\Sales\Model\Order\Item $item
      * @return float|int
      */
     protected function _getItemTax($item)
@@ -650,7 +650,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @return \Magento\EMS\Pay\Model\Method\Mapper
+     * @return \EMS\Pay\Model\Method\Mapper
      */
     protected function _getMethodCodeMapper()
     {

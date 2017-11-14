@@ -6,11 +6,11 @@
  * Time: 16:04
  */
 
-namespace Magento\EMS\Pay\Model;
+namespace EMS\Pay\Model;
 
-use Magento\EMS\Pay\Model\Response;
+use EMS\Pay\Model\Response;
 use Magento\Sales\Model\Order;
-use \Magento\EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Gateway\Config\Config;
 
 class Ipn
 {

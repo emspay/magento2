@@ -6,9 +6,9 @@
  * Time: 13:36
  */
 
-namespace Magento\EMS\Pay\Model\Source;
+namespace EMS\Pay\Model\Source;
 
-use \Magento\EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Gateway\Config\Config;
 
 class DataTransferMode
 {

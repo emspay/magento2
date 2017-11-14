@@ -1,8 +1,8 @@
 <?php
 
-namespace Magento\EMS\Pay\Model\Source;
+namespace EMS\Pay\Model\Source;
 
-use Magento\EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Gateway\Config\Config;
 
 
 class CcType extends \Magento\Payment\Model\Source\Cctype

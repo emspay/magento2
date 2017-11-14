@@ -6,7 +6,7 @@
  * Time: 16:40
  */
 
-namespace Magento\EMS\Pay\Model;
+namespace EMS\Pay\Model;
 
 
 

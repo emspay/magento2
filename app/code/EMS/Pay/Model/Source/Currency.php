@@ -6,24 +6,26 @@
  * Time: 11:27
  */
 
-namespace Magento\EMS\Pay\Model\Source;
+namespace EMS\Pay\Model\Source;
 
 
-use Magento\Config\Model\Config\Source\Locale\Currency\All;
 
-class Currency extends All
+class Currency
 {
     protected $_currency;
-    protected $_localeLists;
+    protected $_new_currency;
     protected $_options;
 
     public function __construct(
 
-        \Magento\EMS\Pay\Model\Currency $currency
+        \EMS\Pay\Model\Currency $currency,
+        \Magento\Config\Model\Config\Source\Locale\Currency $new_currency
     )
     {
-        $this->_options = parent::toOptionArray();
         $this->_currency = $currency;
+        $this->_new_currency = $new_currency;
+        $this->_options = $new_currency->toOptionArray();
+
 
     }
 

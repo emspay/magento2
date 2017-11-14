@@ -1,8 +1,9 @@
 <?php
 
 
-namespace Magento\EMS\Pay\Model\Method;
+namespace EMS\Pay\Model\Method;
 
+use \EMS\Pay\Gateway\Config\Config;
 
 class Mapper
 {
@@ -26,19 +27,19 @@ class Mapper
      * @var array
      */
     protected $_magentoToEmsMap = [
-        EMS_Pay_Model_Config::METHOD_MASTER_CARD => self::EMS_CODE_MASTER_CARD,
-        EMS_Pay_Model_Config::METHOD_VISA => self::EMS_CODE_VISA,
-        EMS_Pay_Model_Config::METHOD_AMERICAN_EXPRESS => self::EMS_CODE_AMERICAN_EXPRESS,
-        EMS_Pay_Model_Config::METHOD_DINERS => self::EMS_CODE_DINERS,
-        EMS_Pay_Model_Config::METHOD_JCB => self::EMS_CODE_JCB,
-        EMS_Pay_Model_Config::METHOD_IDEAL => self::EMS_CODE_IDEAL,
-        EMS_Pay_Model_Config::METHOD_KLARNA => self::EMS_CODE_KLARNA,
-        EMS_Pay_Model_Config::METHOD_MAESTRO => self::EMS_CODE_MAESTRO,
-        EMS_Pay_Model_Config::METHOD_MAESTRO_UK => self::EMS_CODE_MAESTRO_UK,
-        EMS_Pay_Model_Config::METHOD_MASTER_PASS => self::EMS_CODE_MASTER_PASS,
-        EMS_Pay_Model_Config::METHOD_PAYPAL => self::EMS_CODE_PAYPAL,
-        EMS_Pay_Model_Config::METHOD_SOFORT => self::EMS_CODE_SOFORT,
-        EMS_Pay_Model_Config::METHOD_BANCONTACT => self::EMS_CODE_BANCONTACT,
+        Config::METHOD_MASTER_CARD => self::EMS_CODE_MASTER_CARD,
+        Config::METHOD_VISA => self::EMS_CODE_VISA,
+        Config::METHOD_AMERICAN_EXPRESS => self::EMS_CODE_AMERICAN_EXPRESS,
+        Config::METHOD_DINERS => self::EMS_CODE_DINERS,
+        Config::METHOD_JCB => self::EMS_CODE_JCB,
+        Config::METHOD_IDEAL => self::EMS_CODE_IDEAL,
+        Config::METHOD_KLARNA => self::EMS_CODE_KLARNA,
+        Config::METHOD_MAESTRO => self::EMS_CODE_MAESTRO,
+        Config::METHOD_MAESTRO_UK => self::EMS_CODE_MAESTRO_UK,
+        Config::METHOD_MASTER_PASS => self::EMS_CODE_MASTER_PASS,
+        Config::METHOD_PAYPAL => self::EMS_CODE_PAYPAL,
+        Config::METHOD_SOFORT => self::EMS_CODE_SOFORT,
+        Config::METHOD_BANCONTACT => self::EMS_CODE_BANCONTACT,
     ];
     /**
      * Maps payment method codes used by EMS to human readable labels

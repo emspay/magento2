@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Magento\EMS\Pay\Model;
+namespace EMS\Pay\Model;
 
 
-class Currency
+class Currency extends \Magento\Directory\Model\Currency
 {
     /**
      * Maps supported ISO 4217 alphanumeric to number codes

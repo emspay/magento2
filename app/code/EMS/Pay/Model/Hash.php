@@ -6,9 +6,9 @@
  * Time: 13:48
  */
 
-namespace Magento\EMS\Pay\Model;
+namespace EMS\Pay\Model;
 
-use \Magento\EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Gateway\Config\Config;
 
 class Hash
 {
@@ -20,10 +20,9 @@ class Hash
     protected $_config;
 
     public function __construct(
-        Config $config,
+        Config $config
     )
     {
-//        $this->_config = $config;
     }
     /**
      * Generates payment gateway request hash

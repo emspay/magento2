@@ -6,12 +6,9 @@
  * Time: 17:20
  */
 
-namespace Magento\EMS\Pay\Model;
+namespace EMS\Pay\Model;
 
-use \Magento\EMS\Pay\Model\Hash;
-use  \Magento\EMS\Pay\Model\Info;
-use \Magento\EMS\Pay\Model\Currency;
-use \Magento\EMS\Pay\Model\Method\AbstractMethod;
+use EMS\Pay\Model\Method\AbstractMethod;
 
 class Response
 {
@@ -61,15 +58,16 @@ class Response
 
 
     public function __construct(
-       array $response,
-       Currency $currency
+       Currency $currency,
+       Hash $hash,
+       array $response
 
        
     )
     {
-        $this->_response = $response;
-        $this->_hashHandler = new Hash();
         $this->_currency = $currency;
+        $this->_hashHandler = $hash;
+        $this->_response = $response;
     }
 
     /**

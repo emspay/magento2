@@ -1,9 +1,9 @@
 <?php
 
-namespace Magento\EMS\Pay\Gateway\Config;
+namespace EMS\Pay\Gateway\Config;
 
-use Magento\EMS\Pay\Model\Currency;
-use Magento\EMS\Pay\Model\MobileDetect;
+use EMS\Pay\Model\Currency;
+use EMS\Pay\Model\MobileDetect;
 use Magento\Payment\Model\Method\ConfigInterface;
 
 class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
@@ -237,7 +237,7 @@ class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Mage
     ];
 
     /**
-     * \Magento\EMS\Pay\Gateway\Config\Config constructor.
+     * EMS\Pay\Gateway\Config\Config constructor.
      * @param array $params first element should be payment method code, second element should be store id
      * \Magento\Store\Model\StoreManagerInterface storeManager
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
@@ -248,7 +248,7 @@ class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Mage
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
+        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         Currency $currency,
         MobileDetect $detect,
         array $params = []

@@ -26,7 +26,7 @@
  * @version     2.8.25
  */
 
-namespace Magento\EMS\Pay\Model;
+namespace EMS\Pay\Model;
 
 use Magento\Catalog\Model\Product\Exception;
 
