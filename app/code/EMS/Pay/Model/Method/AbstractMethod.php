@@ -7,9 +7,19 @@ use \Magento\EMS\Pay\Gateway\Config\Config;
 use \Magento\EMS\Pay\Model\Hash;
 use \Magento\EMS\Pay\Model\Response;
 use \Magento\EMS\Pay\Model\Info;
+use \Magento\Checkout\Model\Session;
+use \Magento\Store\Model\StoreManagerInterface;
+use \Magento\Sales\Model\Order;
+
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
+
+    /**
+     * Default precision
+     */
+    const DEFAULT_PRECISION = 2;
+
     protected $_infoBlockType = 'ems_pay/payment_info';
     protected $_formBlockType = 'ems_pay/payment_form_form';
 
@@ -34,6 +44,24 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var Currency
      */
     protected $_currency;
+    /**
+     * @var Session
+     */
+    protected $_session;
+
+    /**
+     * @var Mapper
+     */
+    protected $_mapper;
+
+    /**
+     * @var Mapper
+     */
+    protected $_storeManager;
+
+    protected $_store;
+
+
 
 
 
@@ -59,12 +87,19 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     public function __construct(
         Currency $currency,
-        Hash $hashHandler
+        Hash $hashHandler,
+        Session $session,
+        Mapper $mapper,
+        StoreManagerInterface $storeManager
 
     )
     {
         $this->_currency = $currency;
         $this->_hashHandler = $hashHandler;
+        $this->_session = $session;
+        $this->_mapper = $mapper;
+        $this->_storeManager = $storeManager;
+        $this->_store = $storeManager->getStore();
     }
 
     /**
@@ -74,7 +109,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function getOrderPlaceRedirectUrl()
     {
-        return Mage::getUrl('emspay/index/redirect', array('_secure' => true));
+        $store = $this->_storeManager->getStore();
+        return $store->getUrl('emspay/index/redirect', ['_secure' => true]);
     }
 
     /**
@@ -86,7 +122,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     public function initialize($paymentAction, $stateObject)
     {
-        $state = \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT;
+        $state = Order::STATE_PENDING_PAYMENT;
         $stateObject->setState($state);
         $stateObject->setStatus('pending_payment');
         $stateObject->setIsNotified(false);
@@ -138,9 +174,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 Info::CURRENCY => $this->_getOrderCurrencyCode(),
                 Info::ORDER_ID => $this->_getOrderId(),
                 Info::PAYMENT_METHOD => $this->_getPaymentMethod(),
-                Info::RESPONSE_FAIL_URL => Mage::getUrl('emspay/index/fail', array('_secure' => true)),
-                Info::RESPONSE_SUCCESS_URL => Mage::getUrl('emspay/index/success', array('_secure' => true)),
-                Info::TRANSACTION_NOTIFICATION_URL => Mage::getUrl('emspay/index/ipn', array('_secure' => true)),
+                Info::RESPONSE_FAIL_URL => $this->_store->getUrl('emspay/index/fail', array('_secure' => true)),
+                Info::RESPONSE_SUCCESS_URL => $this->_store->getUrl('emspay/index/success', array('_secure' => true)),
+                Info::TRANSACTION_NOTIFICATION_URL => $this->_store->getUrl('emspay/index/ipn', array('_secure' => true)),
                 Info::LANGUAGE => $this->_getLanguage(),
                 Info::BEMAIL => $this->_getOrder()->getCustomerEmail(),
                 Info::MOBILE_MODE => $this->_getMobileMode(),
@@ -179,7 +215,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $fields[Info::BADDR2] = $billingAddress->getStreet2();
         $fields[Info::BCITY] = $billingAddress->getCity();
         $fields[Info::BSTATE] = $billingAddress->getRegion();
-        $fields[Info::BCOUNTRY] = $billingAddress->getCountry();
+        $fields[Info::BCOUNTRY] = $billingAddress->getCountryId();
         $fields[Info::BZIP] = $billingAddress->getPostcode();
         $fields[Info::BPHONE] = $billingAddress->getTelephone();
 
@@ -189,15 +225,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $fields[Info::SADDR2] = $shippingAddress->getStreet2();
         $fields[Info::SCITY] = $shippingAddress->getCity();
         $fields[Info::SSTATE] = $shippingAddress->getRegion();
-        $fields[Info::SCOUNTRY] = $shippingAddress->getCountry();
+        $fields[Info::SCOUNTRY] = $shippingAddress->getCountryId();
         $fields[Info::SZIP] = $shippingAddress->getPostcode();
 
         return $fields;
     }
 
+
     /**
      * Generates cart related (items, shipping fee, discount) payment request fields
-     *
+     * @var $item \Magento\Sales\Model\Order\Item
      * @return array
      */
     protected function _getCartRequestFields()
@@ -210,7 +247,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $fields[Info::SUBTOTAL] = $this->_getSubtotal();
 
         foreach ($order->getAllVisibleItems() as $item) {
-            /** @var $item Mage_Sales_Model_Order_Item */
             $fields[Info::CART_ITEM_FIELD_INDEX . $this->_itemFieldsIndex] =
                 $item->getId() . Info::CART_ITEM_FIELD_SEPARATOR .
                 $item->getName() . Info::CART_ITEM_FIELD_SEPARATOR .
@@ -479,7 +515,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function _getOrder()
     {
-        return \Magento\Sales\Model\Order;->getLastRealOrder();
+        return $this->_session->getLastRealOrder();
     }
 
     /**
@@ -512,7 +548,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected function _getPaymentMethodName()
     {
-        return Mage::getModel('ems_pay/method_code_mapper')->getHumanReadableByEmsCode($this->_getPaymentMethod());
+        return $this->_mapper->getHumanReadableByEmsCode($this->_getPaymentMethod());
     }
 
     /**
@@ -602,7 +638,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         if (null === $this->_config) {
             $params = [$this->getCode()];
-            if ($store = $this->getStore()) {
+            if ($store = $this->_storeManager->getStore()) {
                 $params[] = is_object($store) ? $store->getId() : $store;
             }
 
@@ -614,20 +650,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @return EMS_Pay_Model_Method_Code_Mapper
+     * @return \Magento\EMS\Pay\Model\Method\Mapper
      */
     protected function _getMethodCodeMapper()
     {
-        return Mage::getModel('ems_pay/method_code_mapper');
+        return $this->_mapper;
     }
 
     /**
      * @param $price
+     * @param int $precision
      * @return float
      */
-    protected function _roundPrice($price)
+    protected function _roundPrice($price, $precision = self::DEFAULT_PRECISION)
     {
-        return Mage::app()->getStore()->roundPrice($price);
+        return round($price, $precision);
     }
 
     /**
@@ -639,4 +676,5 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public function addTransactionData(Response $transactionResponse)
     {
     }
+
 }

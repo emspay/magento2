@@ -7,10 +7,6 @@ namespace Magento\EMS\Pay\Model;
 class Currency
 {
     /**
-     * @var EMS_Pay_Helper_Data
-     */
-    protected $_helper;
-    /**
      * Maps supported ISO 4217 alphanumeric to number codes
      *
      * @var array

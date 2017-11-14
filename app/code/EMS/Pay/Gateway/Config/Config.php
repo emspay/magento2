@@ -5,7 +5,6 @@ namespace Magento\EMS\Pay\Gateway\Config;
 use Magento\EMS\Pay\Model\Currency;
 use Magento\EMS\Pay\Model\MobileDetect;
 use Magento\Payment\Model\Method\ConfigInterface;
-use Magento\TestFramework\Event\Magento;
 
 class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
 {
