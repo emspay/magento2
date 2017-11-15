@@ -8,8 +8,8 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="ems_pay_section" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>EMS Pay</label>
+            <!--<group id="ems_pay_section" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">-->
+            <!--<label>EMS Pay</label>-->
                 <group id="ems_pay_general" translate="label" type="text" sortOrder="34" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>EMS Global configuration</label>
                 <field id="operation_mode" translate="label" type="select" sortOrder="30" showInDefault="1"
@@ -135,7 +135,7 @@
                     <frontend_class>validate-number</frontend_class>
                 </field>
             </group>
-            </group>
+            <!--</group>-->
         </section>
     </system>
 </config>

@@ -6,9 +6,9 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="\Magento\EMS\Pay\Model\Method\AbstractMethod">
+    <type name="EMS\Pay\Model\Method\AbstractMethod">
         <arguments>
-            <argument name="mapper" xsi:type="object">\Magento\EMS\Pay\Model\Method\Mapper</argument>
+            <argument name="mapper" xsi:type="object">EMS\Pay\Model\Method\Mapper</argument>
         </arguments>
     </type>
 </config>
