@@ -12,7 +12,7 @@ use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Sales\Model\Order;
 
 
-abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
+abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
     /**
@@ -61,6 +61,20 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected $_store;
 
+    protected $_configFactory;
+
+    /**
+     * Payment data
+     *
+     * @var \Magento\Payment\Helper\Data
+     */
+    protected $_paymentData;
+
+    /**
+     * @var \Magento\Payment\Model\Method\Logger
+     */
+    protected $logger;
+
 
 
 
@@ -85,21 +99,64 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected $_itemFieldsIndex = 1;
 
+    protected $_scopeConfig;
+
+    /**
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Payment\Helper\Data $paymentData
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param array $data
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         Currency $currency,
         Hash $hashHandler,
         Session $session,
         Mapper $mapper,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+        \Magento\Payment\Helper\Data $paymentData,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        array $data = []
 
     )
     {
+//        /** @var TYPE_NAME $resourceCollection */
+//        /** @var TYPE_NAME $resourceCollection */
+//        /** @var TYPE_NAME $data */
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $resource,
+            $resourceCollection,
+            $data
+        );
         $this->_currency = $currency;
         $this->_hashHandler = $hashHandler;
         $this->_session = $session;
         $this->_mapper = $mapper;
         $this->_storeManager = $storeManager;
         $this->_store = $storeManager->getStore();
+        $this->_configFactory = $configFactory;
+        $this->_config = $this->_getConfig();
+        $this->_scopeConfig = $scopeConfig;
+
+
     }
 
     /**
@@ -637,13 +694,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected function _getConfig()
     {
         if (null === $this->_config) {
-            $params = [$this->getCode()];
-            if ($store = $this->_storeManager->getStore()) {
-                $params[] = is_object($store) ? $store->getId() : $store;
-            }
-
-            $this->_config = new Config ($params);
-//            $this->_config = Mage::getModel('ems_pay/config', $params);
+        $store = $this->_storeManager->getStore();
+            $this->_config =  $this->_configFactory->create();
+            $this->_config->setMethod($this->_code);
+            $this->_config->setStoreId(is_object($store) ? $store->getId() : $store);
         }
 
         return $this->_config;

@@ -1,8 +1,12 @@
 define(
     [
-        'Magento_Checkout/js/view/payment/default'
+        'Magento_Checkout/js/view/payment/default',
+        'Magento_Customer/js/customer-data',
+        'Magento_Checkout/js/model/quote',
+        'jquery'
+
     ],
-    function (Component) {
+    function (Component, customer, quote, $) {
         'use strict';
 
         return Component.extend({

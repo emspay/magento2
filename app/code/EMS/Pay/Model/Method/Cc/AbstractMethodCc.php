@@ -12,7 +12,7 @@ use EMS\Pay\Model\Info;
 use EMS\Pay\Model\Response;
 
 
-abstract class AbstractMethod extends \EMS\Pay\Model\Method\AbstractMethod
+abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
 {
     /**
      * Name of field used in form

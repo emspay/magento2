@@ -6,7 +6,7 @@ use EMS\Pay\Model\Currency;
 use EMS\Pay\Model\MobileDetect;
 use Magento\Payment\Model\Method\ConfigInterface;
 
-class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
+class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
 {
     const MODE_TEST = 'test';
     const MODE_PRODUCTION = 'production';
@@ -248,21 +248,13 @@ class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Mage
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
+//        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         Currency $currency,
         MobileDetect $detect,
         array $params = []
 
         )
     {
-        $this->_config = $configFactory;
-        if ($params) {
-            $this->_config = $configFactory->create();
-            $this->setMethod(array_shift($params));
-            if ($params) {
-                $this->setStoreId(array_shift($params));
-            }
-        }
         $this->_storeManager = $storeManager;
         $this->_scopeConfig = $scopeConfig;
         $this->_currency = $currency;
@@ -595,15 +587,15 @@ class Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Mage
 //        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
 //    }
 
-    /**
-     * @param string $field
-     * @return string
-     */
-    public function getConfigData($field)
-    {
-        $path = 'payment/' . $this->_methodCode . '/' . $field;
-        return $this->_scopeConfig->getValue($path, $this->_storeId);
-    }
+//    /**
+//     * @param string $field
+//     * @return string
+//     */
+//    public function getConfigData($field)
+//    {
+//        $path = 'payment/' . $this->_methodCode . '/' . $field;
+//        return $this->_scopeConfig->getValue($path, $this->_storeId);
+//    }
 
     /**
      * @param string|\Magento\Payment\Model\MethodInterface $method

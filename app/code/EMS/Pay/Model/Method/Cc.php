@@ -9,12 +9,15 @@
 namespace EMS\Pay\Model\Method;
 
 use EMS\Pay\Gateway\Config\Config;
-use EMS\Pay\Model\Method\Cc\AbstractMethod;
+//use EMS\Pay\Model\Method\Cc\AbstractMethod;
+use EMS\Pay\Model\Method\Cc\AbstractMethodCc;
 
-class Cc extends AbstractMethod
+class Cc extends AbstractMethodCc
 {
     protected $_code = Config::METHOD_CC;
     protected $_formBlockType = 'ems_pay/payment_form_cc';
+
+
     /**
      * Name of field used in form
      *
