@@ -11,4 +11,18 @@
             <argument name="session" xsi:type="object">Magento\Checkout\Model\Session</argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="ems_pay_config_provider" xsi:type="object">EMS\Pay\Ui\ConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Payment\Model\CcGenericConfigProvider">
+        <arguments>
+            <argument name="methodCodes" xsi:type="array">
+                <item name="ems_pay_cc" xsi:type="const">EMS\Pay\Gateway\Config\Config::METHOD_CC</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

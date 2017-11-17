@@ -100,6 +100,13 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected $_itemFieldsIndex = 1;
 
     protected $_scopeConfig;
+    /**
+     * @var \Magento\Payment\Helper\Data
+     */
+    private $paymentData;
+    /**
+     * @var array
+     */
 
     /**
      * @param \Magento\Framework\Model\Context $context
@@ -134,17 +141,16 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
 
     )
     {
-//        /** @var TYPE_NAME $resourceCollection */
-//        /** @var TYPE_NAME $resourceCollection */
-//        /** @var TYPE_NAME $data */
         parent::__construct(
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
             $resource,
-            $resourceCollection,
-            $data
+            $resourceCollection
         );
         $this->_currency = $currency;
         $this->_hashHandler = $hashHandler;
@@ -155,8 +161,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->_configFactory = $configFactory;
         $this->_config = $this->_getConfig();
         $this->_scopeConfig = $scopeConfig;
-
-
+        $this->paymentData = $paymentData;
+        $this->logger = $logger;
     }
 
     /**

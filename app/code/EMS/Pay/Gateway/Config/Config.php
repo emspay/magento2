@@ -4,7 +4,8 @@ namespace EMS\Pay\Gateway\Config;
 
 use EMS\Pay\Model\Currency;
 use EMS\Pay\Model\MobileDetect;
-use Magento\Payment\Model\Method\ConfigInterface;
+use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
 {
@@ -255,6 +256,8 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
 
         )
     {
+
+
         $this->_storeManager = $storeManager;
         $this->_scopeConfig = $scopeConfig;
         $this->_currency = $currency;
@@ -587,14 +590,27 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
 //        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
 //    }
 
-//    /**
-//     * @param string $field
-//     * @return string
-//     */
-//    public function getConfigData($field)
+    /**
+     * @param string $field
+     * @return string
+     */
+    public function getConfigData($field)
+    {
+        $path = 'payment/' . $this->_methodCode . '/' . $field;
+        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $this->_storeId);
+    }
+
+//    public function getValue($field, $storeId = null)
 //    {
-//        $path = 'payment/' . $this->_methodCode . '/' . $field;
-//        return $this->_scopeConfig->getValue($path, $this->_storeId);
+//        if ($this->_methodCode === null || $this->_pathPattern === null) {
+//            return null;
+//        }
+//
+//        return $this->_scopeConfig->getValue(
+//            sprintf($this->_pathPattern, $this->_methodCode, $field),
+//            ScopeInterface::SCOPE_STORE,
+//            $storeId
+//        );
 //    }
 
     /**

@@ -14,7 +14,7 @@
             <ems_pay_cc>
                 <model>EMS\Pay\Model\Method\Cc</model>
                 <active>0</active>
-                <title>Credit card</title>
+                <title>EMS Pay Credit card</title>
                 <order_status>processing</order_status>
                 <cctypes>ems_pay_visa,ems_pay_mastercard,ems_pay_diners</cctypes>
                 <enable_3dsecure>1</enable_3dsecure>
