@@ -15,16 +15,25 @@ class Country
     protected $_currency;
     protected $_new_country;
     protected $_options;
+    /**
+     * @var \EMS\Pay\Gateway\Config\Config
+     */
+    private $_config;
 
+    /**
+     * Country constructor.
+     * @param \Magento\Config\Model\Config\Source\Locale\Country $new_country
+     * @param \EMS\Pay\Gateway\Config\Config $config
+     */
     public function __construct(
 
-        \Magento\Config\Model\Config\Source\Locale\Country $new_country
+        \Magento\Config\Model\Config\Source\Locale\Country $new_country,
+        \EMS\Pay\Gateway\Config\Config $config
     )
     {
         $this->_new_country = $new_country;
         $this->_options = $new_country->toOptionArray();
-
-
+        $this->_config = $config;
     }
 
     /**
@@ -34,10 +43,8 @@ class Country
     {
         foreach ($this->_options as $index => $optionData) {
             $value = $optionData['value'];
-            if ($value !== '' && !$this->_currency->isCurrencySupported($value)) {
+            if ($value !== '' && !$this->_config->isCountrySupportedByKlarna($value)) {
                 unset($this->_options[$index]);
-            } elseif ($value !== '') {
-                $this->_options[$index]['label'] = $this->_currency->getCurrencyLabel($value);
             }
         }
         return $this->_options;
