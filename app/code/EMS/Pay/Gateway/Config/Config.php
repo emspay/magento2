@@ -60,6 +60,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     const XML_CONFIG_BANCONTACT_BANK_SELECTION = 'payment/ems_pay_bancontact/bank_selection_enabled';
     const XML_CONFIG_CC_TYPES = 'payment/ems_pay_cc/cctypes';
     const XML_CONFIG_CC_3DSECURE = 'payment/ems_pay_cc/enable_3dsecure';
+    const KEY_ACTIVE = 'active';
 
     /**
      * Current payment method code
@@ -236,6 +237,10 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         self::METHOD_SOFORT => 'sofort.png',
         self::METHOD_BANCONTACT => 'bancontact.svg',
     ];
+    /**
+     * @var \Magento\Framework\View\Asset\Repository
+     */
+    private $assetRepo;
 
     /**
      * EMS\Pay\Gateway\Config\Config constructor.
@@ -252,6 +257,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
 //        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         Currency $currency,
         MobileDetect $detect,
+        \Magento\Framework\View\Asset\Repository $assetRepo,
         array $params = []
 
         )
@@ -262,6 +268,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         $this->_scopeConfig = $scopeConfig;
         $this->_currency = $currency;
         $this->_detect = $detect;
+        $this->assetRepo = $assetRepo;
     }
 
     /**
@@ -526,6 +533,21 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     }
 
     /**
+     * Returns list of enabled credit card types logo file names
+     *
+     * @return array card names indexed by card code
+     */
+    public function getEnabledCreditCardTypesLogoImagesUrls()
+    {
+        $logoFiles = $this->_logosMap;
+        foreach ($logoFiles as $code => $name) {
+            $logos[$code] = $this->assetRepo->getUrl('EMS_Pay::images/' . $name);
+        }
+
+        return $logos;
+    }
+
+    /**
      * @param string $code
      * @return bool
      */
@@ -631,5 +653,15 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     public function setStoreId($storeId)
     {
         $this->_storeId = (int) $storeId;
+    }
+
+    /**
+     * Get Payment active status
+     * @return bool
+     */
+    public function isActive($method)
+    {
+        $path = 'payment/' . $method . '/' . self::KEY_ACTIVE;
+        return (bool)  $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $this->_storeId);
     }
 }

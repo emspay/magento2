@@ -59,18 +59,9 @@ class ConfigProvider  implements ConfigProviderInterface
         return [
             'payment' => [
                 Config::METHOD_CC => [
-//                    'isActive' => $this->config->isCreditCardTypeEnabled(),
-//                    'clientToken' => $this->getClientToken(),
-//                    'ccTypesMapper' => $this->mapper->getHumanReadableByMagentoCode(),
-//                    'sdkUrl' => $this->config->getSdkUrl(),
-//                    'countrySpecificCardTypes' => $this->config->getCountrySpecificCardTypeConfig(),
-                    'availableCardTypes' => $this->config->getEnabledCreditCardTypes(),
-//                    'useCvv' => $this->config->isCvvEnabled(),
-//                    'environment' => $this->config->getEnvironment(),
-//                    'kountMerchantId' => $this->config->getKountMerchantId(),
-//                    'hasFraudProtection' => $this->config->hasFraudProtection(),
-//                    'merchantId' => $this->config->getMerchantId(),
-//                    'ccVaultCode' => self::CC_VAULT_CODE
+                      'isActive' => $this->config->isActive(Config::METHOD_CC),
+                       'availableCardTypes' => $this->config->getEnabledCreditCardTypes(),
+                       'logoFileNames' => $this->config->getEnabledCreditCardTypesLogoImagesUrls(),
                 ],
                 Config::XML_CONFIG_CC_3DSECURE => [
                     'enabled' => $this->config->isCreditCard3DSecureEnabled(),

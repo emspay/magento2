@@ -8,12 +8,16 @@ define(
         rendererList
     ) {
         'use strict';
-        rendererList.push(
-            {
-                type: 'ems_pay_cc',
-                component: 'EMS_Pay/js/view/payment/method-renderer/ems_pay_cc'
-            }
-        );
+        var config = window.checkoutConfig.payment,
+            emsPayCcType = 'ems_pay_cc';
+        if (config[emsPayCcType].isActive) {
+            rendererList.push(
+                {
+                    type: emsPayCcType,
+                    component: 'EMS_Pay/js/view/payment/method-renderer/ems_pay_cc'
+                }
+            );
+        }
         return Component.extend({});
     }
 );
