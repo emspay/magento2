@@ -26,12 +26,19 @@
                 <is_gateway>1</is_gateway>
                 <sort_order>4</sort_order>
             </ems_pay_cc>
-            <!--<ems_pay_klarna>-->
-                <!--<model>EmsPayKlarnaFacade</model>-->
-                <!--<active>0</active>-->
-                <!--<title>Klarna Invoice</title>-->
-                <!--<order_status>processing</order_status>-->
-            <!--</ems_pay_klarna>-->
+            <ems_pay_klarna>
+                <model>EMS\Pay\Model\Method\Klarna</model>
+                <active>0</active>
+                <title>Klarna Invoice</title>
+                <order_status>processing</order_status>
+                <payment_action>authorize</payment_action>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_void>1</can_void>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+                <sort_order>5</sort_order>
+            </ems_pay_klarna>
             <!--<ems_pay_paypal>-->
                 <!--<model>EmsPayPayPalFacade</model>-->
                 <!--<active>0</active>-->

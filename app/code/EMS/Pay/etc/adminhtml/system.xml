@@ -135,6 +135,66 @@
                     <frontend_class>validate-number</frontend_class>
                 </field>
             </group>
+                <group id="ems_pay_klarna" translate="label" type="text" sortOrder="45" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Klarna</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Klarna\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>EMS\Pay\Model\Source\Klarna\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
             <!--</group>-->
         </section>
     </system>
