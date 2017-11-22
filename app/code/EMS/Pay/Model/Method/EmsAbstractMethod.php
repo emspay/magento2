@@ -20,7 +20,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     const DEFAULT_PRECISION = 2;
 
-    protected $_infoBlockType = 'ems_pay/payment_info';
+    protected $_infoBlockType = 'EMS\Pay\Block\Payment\Info';
     protected $_formBlockType = 'ems_pay/payment_form_form';
 
     /**
@@ -221,7 +221,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     public function getRedirectFormFields()
     {
         $debugData = [];
-        $config = $this->_getConfig();
+        $config = $this->_config;
 
         try {
             $fields = [

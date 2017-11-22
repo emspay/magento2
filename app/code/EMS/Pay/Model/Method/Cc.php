@@ -116,7 +116,7 @@ class Cc extends AbstractMethodCc
      */
     protected function _is3DSecureEnabled()
     {
-        return $this->_getConfig()->isCreditCard3DSecureEnabled();
+        return $this->_config->isCreditCard3DSecureEnabled();
     }
     /**
      * @param string $code
@@ -124,7 +124,7 @@ class Cc extends AbstractMethodCc
      */
     protected function _validateCardType($code)
     {
-        return !$this->_getConfig()->isCreditCardTypeEnabled($code);
+        return !$this->_config->isCreditCardTypeEnabled($code);
     }
     /**
      * Returns list of enabled credit card types
@@ -133,6 +133,6 @@ class Cc extends AbstractMethodCc
      */
     protected function _getEnabledCardTypes()
     {
-        return $this->_getConfig()->getEnabledCreditCardTypes();
+        return $this->_config->getEnabledCreditCardTypes();
     }
 }

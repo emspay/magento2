@@ -123,7 +123,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
      * @param \Magento\Payment\Model\Info $payment
      * @return array
      */
-    public function getPublicPaymentInfo(\Magento\Payment\Model\Info $payment)
+    public function getPublicPaymentInfo(\Magento\Payment\Model\InfoInterface $payment)
     {
         return $this->_getPaymentInfoFields($this->_publicPaymentInfoFields, $payment);
     }
@@ -132,7 +132,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
      * @param \Magento\Payment\Model\Info $payment
      * @return array
      */
-    public function getPaymentInfo(\Magento\Payment\Model\Info $payment)
+    public function getPaymentInfo(\Magento\Payment\Model\InfoInterface  $payment)
     {
         return $this->_getPaymentInfoFields(array_merge($this->_paymentInfoFields, $this->_publicPaymentInfoFields), $payment);
     }
@@ -142,7 +142,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
      * @param \Magento\Payment\Model\Info $payment
      * @return array
      */
-    protected function _getPaymentInfoFields($fields, \Magento\Payment\Model\Info $payment)
+    protected function _getPaymentInfoFields($fields, \Magento\Payment\Model\InfoInterface  $payment)
     {
         $info = [];
         foreach ($fields as $field)

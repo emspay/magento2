@@ -3,11 +3,13 @@
  * Created by PhpStorm.
  * User: dev01
  * Date: 14.11.17
- * Time: 13:04
+ * Time: 13:19
  */
 
-namespace EMS\Pay\Model\Method\Cc;
+namespace EMS\Pay\Model\Method;
 
+use EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Model\Method\Cc\AbstractMethodCc;
 use EMS\Pay\Model\Response;
 use EMS\Pay\Model\Method\Mapper;
 use EMS\Pay\Model\Currency;
@@ -16,15 +18,10 @@ use EMS\Pay\Model\Info;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Checkout\Model\Session;
 
-
-abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
+class Klarna extends \EMS\Pay\Model\Method\EmsAbstractMethod
 {
-    /**
-     * Name of field used in form
-     *
-     * @var string
-     */
-    protected $_cardTypeFieldName = '';
+    protected $_code = Config::METHOD_KLARNA;
+
     /**
      * Payment data
      *
@@ -108,103 +105,54 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
     }
 
     /**
-     * @inheritdoc
-     */
-    protected function _getPaymentMethod()
-    {
-        return $this->_getMethodCodeMapper()->getEmsCodeByMagentoCode($this->_getCardType());
-    }
-    /**
-     * @inheritdoc
-     */
-    protected function _getMethodSpecificRequestFields()
-    {
-        $fields = parent::_getMethodSpecificRequestFields();
-        $fields[Info::AUTHENTICATE_TRANSACTION] = $this->_is3DSecureEnabled() ? 'true' : 'false';
-        return $fields;
-    }
-    /**
-     * Returns card type used for payment
-     *
-     * @return string|null
-     */
-    protected function _getCardType()
-    {
-        return $this->getInfoInstance()->getAdditionalInformation($this->_cardTypeFieldName);
-    }
-    /**
-     * @inheritdoc
-     */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
-    {
-        $isAvailable = parent::isAvailable($quote);
-        return $isAvailable && count($this->_getEnabledCardTypes()) > 0;
-    }
-    /**
-     * @inheritdoc
-     */
-    public function assignData(\Magento\Framework\DataObject $data)
-    {
-        parent::assignData($data);
-        $info = $this->getInfoInstance();
-        $cardType = $data->getAdditionalData($this->_cardTypeFieldName);
-        if ($cardType) {
-            $info->setAdditionalInformation($this->_cardTypeFieldName, $cardType);
-            $info->setCcType($this->_mapper->getHumanReadableByMagentoCode($cardType));
-        }
-        return $this;
-    }
-    /**
-     * @inheritdoc
-     */
-    public function validate()
-    {
-        parent::validate();
-        $errorMessage = '';
-        $cardType = $this->getInfoInstance()->getAdditionalInformation($this->_cardTypeFieldName);
-        if ($cardType === null || $cardType == '') {
-            $errorMessage = __('Card type is a required field');
-        }
-        if ($this->_validateCardType($cardType)) {
-            $errorMessage = __('Invalid card type selected');
-        }
-        if ($errorMessage !== '') {
-            throw new \Exception($errorMessage);
-        }
-        return $this;
-    }
-    /**
-     * @return bool
-     */
-    protected function _is3DSecureEnabled()
-    {
-        return false;
-    }
-    /**
-     * @inheritdoc
-     */
-    public function addTransactionData(Response $transactionResponse)
-    {
-        parent::addTransactionData($transactionResponse);
-        $info = $this->getInfoInstance();
-        $info->setCcType($transactionResponse->getCcBrand());
-        $info->setCcLast4($transactionResponse->getCcNumber());
-        $info->setCcExpMonth($transactionResponse->getExpMonth());
-        $info->setCcExpYear($transactionResponse->getExpYear());
-        $info->setCcOwner($transactionResponse->getCcOwner());
-        return $this;
-    }
-    /**
-     * Validates whether card type code is valid
-     *
-     * @param string $code
-     * @return bool
-     */
-    abstract protected function _validateCardType($code);
-    /**
-     * * Returns list of enabled credit card types
+     * Generates payment request fields specific for Klarna
      *
      * @return array
      */
-    abstract protected function _getEnabledCardTypes();
+    protected function _getMethodSpecificRequestFields()
+    {
+        $fields = [];
+        /** @var $billingAddress Mage_Sales_Model_Order_Address */
+        $billingAddress = $this->_getOrder()->getBillingAddress();
+        $fields[Info::KLARNA_FIRSTNAME] = $billingAddress->getFirstname();
+        $fields[Info::KLARNA_LASTNAME] = $billingAddress->getLastname();
+        $fields[Info::KLARNA_STREET] = $billingAddress->getStreet1();
+        $fields[Info::KLARNA_PHONE] = $billingAddress->getTelephone();
+        $fields = array_merge($fields, $this->_getCartRequestFields());
+        return $fields;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function isApplicableToQuote($quote, $checksBitMask)
+    {
+        $isApplicable = parent::isApplicableToQuote($quote, $checksBitMask);
+        if ($isApplicable === false) {
+            return false;
+        }
+        if ($checksBitMask & self::CHECK_USE_FOR_CURRENCY) {
+            if (!$this->_currency->isCurrencySupportedByKlarna(
+                $quote->getStore()->getBaseCurrencyCode(),
+                $quote->getBillingAddress()->getCountry())
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function canUseForCountry($country)
+    {
+        $canUse = parent::canUseForCountry($country);
+        return $canUse && $this->_config->isCountrySupportedByKlarna($country);
+    }
+    /**
+     * @inheritdoc
+     */
+    protected function _getCheckoutOption()
+    {
+        return Config::CHECKOUT_OPTION_CLASSIC; //klarna supports only classic
+    }
 }
