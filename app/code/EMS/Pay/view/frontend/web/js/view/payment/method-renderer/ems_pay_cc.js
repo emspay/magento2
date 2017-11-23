@@ -3,16 +3,19 @@ define(
         'Magento_Checkout/js/view/payment/default',
         'Magento_Customer/js/customer-data',
         'Magento_Checkout/js/model/quote',
+        'mage/url',
+        'Magento_Checkout/js/action/place-order',
         'jquery'
 
     ],
-    function (Component, customer, quote, $) {
+    function (Component, customer, quote, url, placeOrderAction, $) {
         'use strict';
 
         return Component.extend({
             defaults: {
                 template: 'EMS_Pay/payment/ems_pay_cc',
-                selectedCardType: ''
+                selectedCardType: '',
+                redirectAfterPlaceOrder: false
             },
             initObservable: function () {
                 this._super()
@@ -78,8 +81,14 @@ define(
              * @returns {Boolean}
              */
             isActive: function () {
-                return true;
+                return window.checkoutConfig.payment['ems_pay_cc'].isActive;
+            },
+
+            afterPlaceOrder: function (data, event) {
+                window.location.replace(url.build('EMS/Pa/controller'));
+
             }
+
 
 
         });
