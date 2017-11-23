@@ -62,6 +62,8 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     const XML_CONFIG_CC_3DSECURE = 'payment/ems_pay_cc/enable_3dsecure';
     const KEY_ACTIVE = 'active';
 
+    const CHECKOUT_REDIRECT_URL = 'emspay/index/redirect';
+
     /**
      * Current payment method code
      * @var string
@@ -291,7 +293,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         $configPath = $this->_isProductionMode($storeId) ?
             self::XML_CONFIG_STORE_NAME_PRODUCTION :
             self::XML_CONFIG_STORE_NAME_TEST;
-        return $this->_scopeConfig->getValue($configPath, $storeId);
+        return $this->_scopeConfig->getValue($configPath, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -303,7 +305,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         $configPath = $this->_isProductionMode() ?
             self::XML_CONFIG_SHARED_SECRET_PRODUCTION :
             self::XML_CONFIG_SHARED_SECRET_TEST;
-        return $this->_scopeConfig->getValue($configPath, $storeId);
+        return $this->_scopeConfig->getValue($configPath, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -333,7 +335,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      */
     public function getCheckoutOption($storeId = null)
     {
-        return $this->_scopeConfig->getValue(self::XML_CONFIG_CHECKOUT_OPTION, $storeId);
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_CHECKOUT_OPTION, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -362,7 +364,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      */
     protected function _isProductionMode($storeId = null)
     {
-        return $this->_scopeConfig->getValue(self::XML_CONFIG_OPERATION_MODE, $storeId) == self::MODE_PRODUCTION;
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_OPERATION_MODE, ScopeInterface::SCOPE_STORE, $this->_storeId) == self::MODE_PRODUCTION;
     }
 
     /**

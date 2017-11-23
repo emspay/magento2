@@ -63,8 +63,13 @@ class ConfigProvider  implements ConfigProviderInterface
                        'availableCardTypes' => $this->config->getEnabledCreditCardTypes(),
                        'logoFileNames' => $this->config->getEnabledCreditCardTypesLogoImagesUrls(),
                         Config::XML_CONFIG_CC_3DSECURE => $this->config->isCreditCard3DSecureEnabled(),
-                        'cardTypeFieldName' => 'ems_card_type'
+                        'cardTypeFieldName' => 'ems_card_type',
+
                 ],
+                'emsPayGeneral' => [
+                    'emspayRedirectUrl' => Config::CHECKOUT_REDIRECT_URL,
+                ]
+
             ]
         ];
     }

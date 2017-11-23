@@ -34,15 +34,15 @@ define(
             },
 
             getAvailableCardTypes: function () {
-                return window.checkoutConfig.payment['ems_pay_cc'].availableCardTypes;
+                return window.checkoutConfig.payment[this.getCode()].availableCardTypes;
             },
 
             getLogoFileNames: function () {
-                return window.checkoutConfig.payment['ems_pay_cc'].logoFileNames;
+                return window.checkoutConfig.payment[this.getCode()].logoFileNames;
             },
 
             getCardTypeFieldName: function () {
-                return window.checkoutConfig.payment['ems_pay_cc'].cardTypeFieldName;
+                return window.checkoutConfig.payment[this.getCode()].cardTypeFieldName;
             },
 
             getCardList: function() {
@@ -62,9 +62,13 @@ define(
                 });
             },
 
+            getRedirectUrl: function () {
+                return window.checkoutConfig.payment.emsPayGeneral.emspayRedirectUrl
+            },
+
             getLogos: function (type) {
-                return window.checkoutConfig.payment['ems_pay_cc'].logoFileNames.hasOwnProperty(type)
-                    ? window.checkoutConfig.payment['ems_pay_cc'].logoFileNames[type]
+                return window.checkoutConfig.payment[this.getCode()].logoFileNames.hasOwnProperty(type)
+                    ? window.checkoutConfig.payment[this.getCode()].logoFileNames[type]
                     : false
             },
 
@@ -81,11 +85,11 @@ define(
              * @returns {Boolean}
              */
             isActive: function () {
-                return window.checkoutConfig.payment['ems_pay_cc'].isActive;
+                return window.checkoutConfig.payment[this.getCode()].isActive;
             },
 
             afterPlaceOrder: function (data, event) {
-                window.location.replace(url.build('EMS/Pa/controller'));
+                window.location.replace(url.build(this.getRedirectUrl()));
 
             }
 
