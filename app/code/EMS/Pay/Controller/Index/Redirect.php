@@ -84,18 +84,27 @@ class Redirect extends \Magento\Framework\App\Action\Action
         }
 
         $this->checkoutSession->setEmsQuoteId($this->checkoutSession->getQuoteId());
-
-        try {
-            $this->_view->addPageLayoutHandles();
-            $this->_view->loadLayout(false)->renderLayout();
-            $this->checkoutSession->clearQuote();
-            $this->checkoutSession->clearHelperData();
-        } catch (\Exception $ex) {
-            $this->messageManager->addError($ex->getMessage());
-            $this->checkoutSession->setCancelOrder(true);
-            $this->messageManager->addError(__('There was an error processing your order. Please contact us or try again later.'));
-            $this->_redirect('*/*/error');
+        $order = $this->checkoutSession->getLastRealOrder();
+        $payment = $order->getPayment();
+        if (!$payment || !($payment->getMethodInstance() instanceof \EMS\Pay\Model\Method\EmsAbstractMethod)) {
+            $this->messageManager->addErrorMessage('Payment method %s is not supported', get_class($payment->getMethodInstance()));
         }
+        $method = $payment->getMethodInstance();
+        $emsRedirectUrl = $method->getGatewayUrl();
+        $requestArguments = $method->generateRequestFromOrder($order);
+        $this->_redirect($emsRedirectUrl, array_merge($requestArguments));
+
+//        try {
+//            $this->_view->addPageLayoutHandles();
+//            $this->_view->loadLayout(false)->renderLayout();
+//            $this->checkoutSession->clearQuote();
+//            $this->checkoutSession->clearHelperData();
+//        } catch (\Exception $ex) {
+//            $this->messageManager->addError($ex->getMessage());
+//            $this->checkoutSession->setCancelOrder(true);
+//            $this->messageManager->addError(__('There was an error processing your order. Please contact us or try again later.'));
+//            $this->_redirect('*/*/error');
+//        }
 
     }
 }

@@ -12,6 +12,7 @@ use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Sales\Model\Order;
 
 
+
 abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
@@ -75,6 +76,11 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected $logger;
 
+    /**
+     * @property Order _order
+     */
+    protected $_order = null;
+
 
 
 
@@ -104,11 +110,15 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @var \Magento\Payment\Helper\Data
      */
     private $paymentData;
-    /**
-     * @var array
-     */
+
 
     /**
+     * @param Currency $currency
+     * @param Hash $hashHandler
+     * @param Session $session
+     * @param Mapper $mapper
+     * @param StoreManagerInterface $storeManager
+     * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
@@ -163,6 +173,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->_scopeConfig = $scopeConfig;
         $this->paymentData = $paymentData;
         $this->logger = $logger;
+
     }
 
     /**
@@ -241,7 +252,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
                 \EMS\Pay\Model\Info::RESPONSE_SUCCESS_URL => $this->_store->getUrl('emspay/index/success', array('_secure' => true)),
                 \EMS\Pay\Model\Info::TRANSACTION_NOTIFICATION_URL => $this->_store->getUrl('emspay/index/ipn', array('_secure' => true)),
                 \EMS\Pay\Model\Info::LANGUAGE => $this->_getLanguage(),
-                \EMS\Pay\Model\Info::BEMAIL => $this->_getOrder()->getCustomerEmail(),
+                \EMS\Pay\Model\Info::BEMAIL => $this->_order->getCustomerEmail(),
                 \EMS\Pay\Model\Info::MOBILE_MODE => $this->_getMobileMode(),
             ];
 
@@ -269,7 +280,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected function _getAddressRequestFields()
     {
         $fields = [];
-        $order = $this->_getOrder();
+        $order = $this->_order;
 
         $billingAddress = $order->getBillingAddress();
         $fields[Info::BCOMPANY] = $billingAddress->getCompany();
@@ -303,7 +314,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected function _getCartRequestFields()
     {
         $fields = [];
-        $order = $this->_getOrder();
+        $order = $this->_order;
 
         $fields[Info::SHIPPING] = Info::CART_ITEM_SHIPPING_AMOUNT;
         $fields[Info::VATTAX] = $this->_roundPrice($order->getBaseTaxAmount());
@@ -432,7 +443,9 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getTimezone()
     {
-        return $this->_getOrder()->getCreatedAtStoreDate()->getTimezone();
+        $date = new \DateTime($this->_order->getCreatedAt());
+
+        return $date->getTimezone();
     }
 
     /**
@@ -440,9 +453,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getTransactionTime()
     {
-        $order = $this->_getOrder();
-
-        return $order->getCreatedAtStoreDate()->toString(Config::TXNDATE_ZEND_DATE_FORMAT);
+        $date = new \DateTime($this->_order->getCreatedAt());
+        return $date->format(Config::TXNDATE_ZEND_DATE_FORMAT);
     }
 
     /**
@@ -452,7 +464,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getChargeTotal()
     {
-        return $this->_roundPrice($this->_getOrder()->getBaseGrandTotal() + $this->_getRoundingAmount());
+        return $this->_roundPrice($this->_order->getBaseGrandTotal() + $this->_getRoundingAmount());
     }
 
     /**
@@ -460,7 +472,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getSubtotal()
     {
-        $order = $this->_getOrder();
+        $order = $this->_order;
         return $this->_roundPrice($order->getBaseSubtotal() + $order->getBaseShippingAmount() + $this->_getDiscount() + $this->_getRoundingAmount());
     }
 
@@ -469,7 +481,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getDiscountInclTax()
     {
-        return $this->_roundPrice($this->_getOrder()->getBaseDiscountAmount());
+        return $this->_roundPrice($this->_order->getBaseDiscountAmount());
     }
 
     /**
@@ -477,7 +489,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getDiscount()
     {
-        $order = $this->_getOrder();
+        $order = $this->_order;
         return $this->_roundPrice($this->_getDiscountInclTax() + $order->getBaseHiddenTaxAmount()); //discount is negative, hidden tax is positive number
     }
 
@@ -494,7 +506,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getDiscountLabel()
     {
-        return __('Discount') . ' (' . $this->_getOrder()->getDiscountDescription() . ')';
+        return __('Discount') . ' (' . $this->_order->getDiscountDescription() . ')';
     }
 
     /**
@@ -570,7 +582,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getOrderId()
     {
-        return $this->_getOrder()->getIncrementId();
+        return $this->_order->getIncrementId();
     }
 
     /**
@@ -578,7 +590,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getOrder()
     {
-        return $this->_session->getLastRealOrder();
+        return $this->_order;
     }
 
     /**
@@ -588,7 +600,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getOrderCurrencyCode()
     {
-        $order = $this->_getOrder();
+        $order = $this->_order;
 
         return $this->_currency->getNumericCurrencyCode($order->getBaseCurrency());
     }
@@ -680,9 +692,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected function _debug($debugData)
     {
         if ($this->getDebugFlag()) {
-            Mage::getModel('core/log_adapter', $this->_config->getLogFile())
-                ->setFilterDataKeys($this->_debugReplacePrivateDataKeys)
-                ->log($debugData);
+            $this->_logger->debug(var_export($debugData, true));
         }
     }
 
@@ -735,6 +745,35 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     public function addTransactionData(Response $transactionResponse)
     {
+    }
+
+    /**
+     * Generate request object and fill its fields from Quote or Order object
+     *
+     * @param \Magento\Sales\Model\Order $order Quote or order object.
+     * @return array
+     */
+    public function generateRequestFromOrder(\Magento\Sales\Model\Order $order)
+    {
+
+        $request = [];
+        $this->_order = $order;
+
+//        $request = $this->requestFactory->create()
+//            ->setConstantData($this)
+//            ->setDataFromOrder($order, $this)
+//            ->signRequestData();
+
+//        $this->_debug(['request' => $request->getData()]);
+        $request[] = $this->getRedirectFormFields();
+        return $request;
+    }
+
+    /**
+     * @param Order $order
+     */
+    protected function _initOrder(\Magento\Sales\Model\Order $order) {
+       $this->_order = $order;
     }
 
 }
