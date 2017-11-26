@@ -19,10 +19,15 @@ class Hash
      */
     protected $_config;
 
+    /**
+     * Hash constructor.
+     * @param Config $config
+     */
     public function __construct(
         Config $config
     )
     {
+        $this->_config = $config;
     }
     /**
      * Generates payment gateway request hash
