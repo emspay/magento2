@@ -243,15 +243,21 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      * @var \Magento\Framework\View\Asset\Repository
      */
     private $assetRepo;
+    /**
+     * @var \Magento\Framework\Locale\ResolverInterface
+     */
+    private $localeResolver;
 
     /**
      * EMS\Pay\Gateway\Config\Config constructor.
-     * @param array $params first element should be payment method code, second element should be store id
-     * \Magento\Store\Model\StoreManagerInterface storeManager
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param Currency $currency
      * @param MobileDetect $detect
+     * @param \Magento\Framework\View\Asset\Repository $assetRepo
+     * @param \Magento\Framework\Locale\ResolverInterface $localeResolver
+     * @param array $params first element should be payment method code, second element should be store id
+     * \Magento\Store\Model\StoreManagerInterface storeManager
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -260,6 +266,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         Currency $currency,
         MobileDetect $detect,
         \Magento\Framework\View\Asset\Repository $assetRepo,
+        \Magento\Framework\Locale\ResolverInterface $localeResolver,
         array $params = []
 
         )
@@ -271,6 +278,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         $this->_currency = $currency;
         $this->_detect = $detect;
         $this->assetRepo = $assetRepo;
+        $this->localeResolver = $localeResolver;
     }
 
     /**
@@ -355,7 +363,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      */
     public function isDebuggingEnabled($storeId = null)
     {
-        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_LOGGING_ENABLED, $storeId);
+        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_LOGGING_ENABLED, ScopeInterface::SCOPE_STORE,$storeId);
     }
 
     /**
@@ -577,20 +585,20 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         return $this->_detect->isMobile();
     }
 
-//    /**
-//     * Returns current locale or the default one if current is not supported by EMS
-//     *
-//     * @return string
-//     */
-//    public function getLanguage()
-//    {
-//        $lang = Mage::app()->getLocale()->getLocaleCode();
-//        if (in_array($lang, $this->_supportedLanguages)) {
-//            return $lang;
-//        }
-//
-//        return $this->_defaultLanguage;
-//    }
+    /**
+     * Returns current locale or the default one if current is not supported by EMS
+     *
+     * @return string
+     */
+    public function getLanguage()
+    {
+        $lang = $this->localeResolver->getLocale();
+        if (in_array($lang, $this->_supportedLanguages)) {
+            return $lang;
+        }
+
+        return $this->_defaultLanguage;
+    }
 
     /**
      * Returns payment method logo file name
@@ -604,15 +612,15 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         return isset($this->_logosMap[$methodCode]) ? $this->_logosMap[$methodCode] : '';
     }
 
-//    /**
-//     * Returns log file name for current method
-//     *
-//     * @return string
-//     */
-//    public function getLogFile()
-//    {
-//        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
-//    }
+    /**
+     * Returns log file name for current method
+     *
+     * @return string
+     */
+    public function getLogFile()
+    {
+        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
+    }
 
     /**
      * @param string $field
@@ -624,18 +632,6 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $this->_storeId);
     }
 
-//    public function getValue($field, $storeId = null)
-//    {
-//        if ($this->_methodCode === null || $this->_pathPattern === null) {
-//            return null;
-//        }
-//
-//        return $this->_scopeConfig->getValue(
-//            sprintf($this->_pathPattern, $this->_methodCode, $field),
-//            ScopeInterface::SCOPE_STORE,
-//            $storeId
-//        );
-//    }
 
     /**
      * @param string|\Magento\Payment\Model\MethodInterface $method
