@@ -110,6 +110,10 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @var \Magento\Payment\Helper\Data
      */
     private $paymentData;
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     */
+    private $timezone;
 
 
     /**
@@ -128,6 +132,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
      * @param array $data
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -136,6 +141,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         Hash $hashHandler,
         Session $session,
         Mapper $mapper,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -173,7 +179,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->_scopeConfig = $scopeConfig;
         $this->paymentData = $paymentData;
         $this->logger = $logger;
-
+        $this->timezone = $timezone;
     }
 
     /**
@@ -285,8 +291,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $billingAddress = $order->getBillingAddress();
         $fields[Info::BCOMPANY] = $billingAddress->getCompany();
         $fields[Info::BNAME] = $billingAddress->getName();
-        $fields[Info::BADDR1] = $billingAddress->getStreet1();
-        $fields[Info::BADDR2] = $billingAddress->getStreet2();
+        $fields[Info::BADDR1] = $billingAddress->getStreetLine(1);
+        $fields[Info::BADDR2] = $billingAddress->getStreetLine(2);
         $fields[Info::BCITY] = $billingAddress->getCity();
         $fields[Info::BSTATE] = $billingAddress->getRegion();
         $fields[Info::BCOUNTRY] = $billingAddress->getCountryId();
@@ -295,8 +301,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
 
         $shippingAddress = $order->getShippingAddress();
         $fields[Info::SNAME] = $shippingAddress->getName();
-        $fields[Info::SADDR1] = $shippingAddress->getStreet1();
-        $fields[Info::SADDR2] = $shippingAddress->getStreet2();
+        $fields[Info::SADDR1] = $shippingAddress->getStreetLine(1);
+        $fields[Info::SADDR2] = $shippingAddress->getStreetLine(2);
         $fields[Info::SCITY] = $shippingAddress->getCity();
         $fields[Info::SSTATE] = $shippingAddress->getRegion();
         $fields[Info::SCOUNTRY] = $shippingAddress->getCountryId();
@@ -443,9 +449,9 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getTimezone()
     {
-        $date = new \DateTime($this->_order->getCreatedAt());
-
-        return $date->getTimezone();
+//        $date = new \DateTime($this->_order->getCreatedAt());
+        $this->timezone->getConfigTimezone('store', $this->getStore());
+        return $this->timezone->getConfigTimezone('store', $this->getStore());;
     }
 
     /**
@@ -732,9 +738,9 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @param int $precision
      * @return float
      */
-    protected function _roundPrice($price, $precision = self::DEFAULT_PRECISION)
+    protected function _roundPrice($price)
     {
-        return round($price, $precision);
+        return round($price, self::DEFAULT_PRECISION);
     }
 
     /**
@@ -765,7 +771,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
 //            ->signRequestData();
 
 //        $this->_debug(['request' => $request->getData()]);
-        $request[] = $this->getRedirectFormFields();
+        $request = $this->getRedirectFormFields();
         return $request;
     }
 

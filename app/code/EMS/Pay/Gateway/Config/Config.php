@@ -41,7 +41,8 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     /**
      * date format accepted by Zend_Date::toString()
      */
-    const TXNDATE_ZEND_DATE_FORMAT = 'YYYY:MM:dd-HH:mm:ss';
+//    const TXNDATE_ZEND_DATE_FORMAT = 'YYYY:MM:dd-HH:mm:ss';
+    const TXNDATE_ZEND_DATE_FORMAT = 'Y:m:d-H:i:s';
 
     const GATEWAY_URL_TEST = 'https://test.ipg-online.com/connect/gateway/processing';
     const GATEWAY_URL_PRODUCTION = 'https://www.ipg-online.com/connect/gateway/processing';

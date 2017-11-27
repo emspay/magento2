@@ -92,19 +92,20 @@ class Redirect extends \Magento\Framework\App\Action\Action
         $method = $payment->getMethodInstance();
         $emsRedirectUrl = $method->getGatewayUrl();
         $requestArguments = $method->generateRequestFromOrder($order);
-        $this->_redirect($emsRedirectUrl, array_merge($requestArguments));
-
-//        try {
-//            $this->_view->addPageLayoutHandles();
-//            $this->_view->loadLayout(false)->renderLayout();
-//            $this->checkoutSession->clearQuote();
-//            $this->checkoutSession->clearHelperData();
-//        } catch (\Exception $ex) {
-//            $this->messageManager->addError($ex->getMessage());
-//            $this->checkoutSession->setCancelOrder(true);
-//            $this->messageManager->addError(__('There was an error processing your order. Please contact us or try again later.'));
-//            $this->_redirect('*/*/error');
-//        }
+//        $this->_redirect($emsRedirectUrl, array_merge($requestArguments));
+        $this->_coreRegistry->register('emsRedirectUrl', $emsRedirectUrl);
+        $this->_coreRegistry->register('requestArguments', $requestArguments);
+        try {
+            $this->_view->addPageLayoutHandles();
+            $this->_view->loadLayout(false)->renderLayout();
+            $this->checkoutSession->clearQuote();
+            $this->checkoutSession->clearHelperData();
+        } catch (\Exception $ex) {
+            $this->messageManager->addError($ex->getMessage());
+            $this->checkoutSession->setCancelOrder(true);
+            $this->messageManager->addError(__('There was an error processing your order. Please contact us or try again later.'));
+            $this->_redirect('*/*/error');
+        }
 
     }
 }

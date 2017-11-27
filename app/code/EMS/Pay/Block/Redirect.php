@@ -50,37 +50,30 @@ class Redirect extends \Magento\Payment\Block\Form
      * @var \Magento\Sales\Model\OrderFactory
      */
     private $orderFactory;
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    private $registry;
 
     /**
      * @param Context $context
-     * @param \EMS\Pay\Gateway\Config\Config|\EMS\Pay\Gateway\Config\ConfigFactory $emspayConfigFactory
      * @param ResolverInterface $localeResolver
      * @param CurrentCustomer $currentCustomer
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
+     * @param \Magento\Framework\Registry $_coreRegistry
      * @param array $data
+     * @internal param \EMS\Pay\Gateway\Config\Config|\EMS\Pay\Gateway\Config\ConfigFactory $emspayConfigFactory
      */
     public function __construct(
         Context $context,
-        \EMS\Pay\Gateway\Config\ConfigFactory $emspayConfigFactory,
-        ResolverInterface $localeResolver,
-//        Data $paypalData,
-        CurrentCustomer $currentCustomer,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \Magento\Framework\Registry $_coreRegistry,
         array $data = []
     ) {
-//        $this->_paypalData = $paypalData;
-//        $this->_emspayConfigFactory= $emspayConfigFactory;
-        $this->_localeResolver = $localeResolver;
-        $this->_config = null;
-        $this->_isScopePrivate = true;
-        $this->currentCustomer = $currentCustomer;
-        $this->emspayConfigFactory = $emspayConfigFactory;
         parent::__construct($context, $data);
         $this->checkoutSession = $checkoutSession;
-        $this->orderFactory = $orderFactory;
-        $this->paymentMethod = $this->_getPaymentMethod();
+        $this->registry = $_coreRegistry;
     }
 
     /**
@@ -90,7 +83,7 @@ class Redirect extends \Magento\Payment\Block\Form
      */
     public function getFormAction()
     {
-        return $this->paymentMethod->getGatewayUrl();
+        return $this->registry->registry('emsRedirectUrl');
     }
 
     /**
@@ -98,24 +91,8 @@ class Redirect extends \Magento\Payment\Block\Form
      */
     public function getFormFields()
     {
-        return $this->paymentMethod->getRedirectFormFields();
+        return $this->registry->registry('requestArguments');
     }
 
-    /**
-     * @return \EMS\Pay\Model\Method\EmsAbstractMethod
-     * @throws \Exception
-     */
-    protected function _getPaymentMethod()
-    {
-        $paymentMethod = null;
-        $order = $this->checkoutSession->getLastRealOrder();
-        if ($order->getId()) {
-            $paymentMethod = $order->getPayment()->getMethodInstance();
-        }
-        if (is_null($paymentMethod) || !($paymentMethod instanceof \EMS\Pay\Model\Method\EmsAbstractMethod)) {
-            throw new \Exception(__('Payment method %s is not supported', get_class($paymentMethod)));
-        }
-        return $paymentMethod;
-    }
 
 }

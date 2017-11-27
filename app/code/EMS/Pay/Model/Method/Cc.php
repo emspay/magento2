@@ -34,6 +34,10 @@ class Cc extends AbstractMethodCc
      * @var \Magento\Payment\Model\Method\Logger
      */
     protected $logger;
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     */
+    private $timezone;
 
 
     /**
@@ -41,6 +45,7 @@ class Cc extends AbstractMethodCc
      * @param Hash $hashHandler
      * @param Session $session
      * @param Mapper $mapper
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
      * @param StoreManagerInterface $storeManager
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
@@ -60,6 +65,7 @@ class Cc extends AbstractMethodCc
         Hash $hashHandler,
         Session $session,
         Mapper $mapper,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -80,6 +86,7 @@ class Cc extends AbstractMethodCc
             $hashHandler,
             $session,
             $mapper,
+            $timezone,
             $storeManager,
             $configFactory,
             $context,
@@ -103,6 +110,7 @@ class Cc extends AbstractMethodCc
         $this->_scopeConfig = $scopeConfig;
         $this->_paymentData = $paymentData;
         $this->logger = $logger;
+        $this->timezone = $timezone;
     }
 
     /**
