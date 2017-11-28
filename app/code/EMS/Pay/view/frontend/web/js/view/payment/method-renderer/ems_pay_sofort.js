@@ -13,13 +13,11 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'EMS_Pay/payment/ems_pay_cc',
-                selectedCardType: '',
+                template: 'EMS_Pay/payment/ems_pay_sofort',
                 redirectAfterPlaceOrder: false
             },
             initObservable: function () {
                 this._super()
-                    .observe('selectedCardType');
                 return this;
             },
 
@@ -30,29 +28,13 @@ define(
              * @returns {String}
              */
             getCode: function () {
-                return 'ems_pay_cc';
-            },
-
-            getAvailableCardTypes: function () {
-                return window.checkoutConfig.payment[this.getCode()].availableCardTypes;
+                return 'ems_pay_sofort';
             },
 
             getLogoFileNames: function () {
                 return window.checkoutConfig.emsPayGeneral.logoFileNames;
             },
 
-            getCardTypeFieldName: function () {
-                return window.checkoutConfig.payment[this.getCode()].cardTypeFieldName;
-            },
-
-            getCardList: function() {
-                return _.map(this.getAvailableCardTypes(), function(value, key) {
-                    return {
-                        'value': key,
-                        'type': value
-                    }
-                });
-            },
             getLogoList: function() {
                 return _.map(this.getLogoFileNames(), function(value, key) {
                     return {
@@ -67,19 +49,13 @@ define(
             },
 
             getLogos: function (type) {
-                return window.checkoutConfig.payment[this.getCode()].logoFileNames.hasOwnProperty(type)
-                    ? window.checkoutConfig.payment[this.getCode()].logoFileNames[type]
+                return window.checkoutConfig.payment.emsPayGeneral.logoFileNames.hasOwnProperty(type)
+                    ? window.checkoutConfig.payment.emsPayGeneral.logoFileNames[type]
                     : false
             },
 
             getData: function() {
-
-                var additionalData = null;
-                if (this.getCardTypeFieldName()) {
-                    additionalData = {};
-                    additionalData[this.getCardTypeFieldName()] = this.selectedCardType();
-                }
-                return {'method': this.getCode(), 'additional_data': additionalData};
+                return {'method': this.getCode()};
             },
             /**
              * @returns {Boolean}

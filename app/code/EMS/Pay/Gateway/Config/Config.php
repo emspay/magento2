@@ -548,7 +548,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      *
      * @return array card names indexed by card code
      */
-    public function getEnabledCreditCardTypesLogoImagesUrls()
+    public function getLogoImagesUrls()
     {
         $logoFiles = $this->_logosMap;
         foreach ($logoFiles as $code => $name) {

@@ -544,7 +544,7 @@
                 <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
                        showInWebsite="1">
                     <label>Countries Payment Applicable From</label>
-                    <source_model>Magento\Directory\Model\Config\Source\Bancontact\Country</source_model>
+                    <source_model>EMS\Pay\Model\Source\Bancontact\Country</source_model>
                     <depends>
                         <field id="allowspecific">1</field>
                     </depends>
