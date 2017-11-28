@@ -18,11 +18,11 @@ use EMS\Pay\Model\Info;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Checkout\Model\Session;
 
-class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
+class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
 {
     const ISSUING_BANK_FIELD_NAME = 'issuing_bank';
 
-    protected $_code = Config::METHOD_BANCONTACT;
+    protected $_code = Config::METHOD_IDEAL;
 
     /**
      * Payment data
@@ -120,7 +120,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
     protected function _getMethodSpecificRequestFields()
     {
         $fields = [];
-        $fields[Info::BANCONTACT_ISSUER_ID] = $this->_getIssuingBankCode();
+        $fields[Info::IDEAL_ISSUER_ID] = $this->_getIssuingBankCode();
         return $fields;
     }
 
@@ -174,7 +174,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
      */
     protected function _validateIssuingBankCode($code)
     {
-        return !$this->_config->isBancontactIssuingBankCodeValid($code);
+        return !$this->_config->isIdealIssuingBankCodeValid($code);
     }
 
     /**
@@ -182,7 +182,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
      */
     protected function _isBankSelectionEnabled()
     {
-        return $this->_config->isBancontactIssuingBankSelectionEnabled();
+        return $this->_config->isIdealIssuingBankSelectionEnabled();
     }
     /**
      * @inheritdoc
@@ -194,7 +194,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
             return false;
         }
         if ($checksBitMask & self::CHECK_USE_FOR_CURRENCY) {
-            if (!$this->_currency->isCurrencySupportedByBancontact($quote->getStore()->getBaseCurrencyCode())) {
+            if (!$this->_currency->isCurrencySupportedByIdeal($quote->getStore()->getBaseCurrencyCode())) {
                 return false;
             }
         }
@@ -213,12 +213,5 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function canUseForCountry($country)
-    {
-        $canUse = parent::canUseForCountry($country);
-        return $canUse && $this->_config->isCountrySupportedByBancontact($country);
-    }
+
 }

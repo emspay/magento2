@@ -6,7 +6,7 @@
  * Time: 11:27
  */
 
-namespace EMS\Pay\Model\Source\Bancontact;
+namespace EMS\Pay\Model\Source\Ideal;
 
 
 
@@ -36,7 +36,7 @@ class Currency
     {
         foreach ($this->_options as $index => $optionData) {
             $value = $optionData['value'];
-            if ($value !== '' && !$this->_currency->isCurrencySupportedByBancontact($value)) {
+            if ($value !== '' && !$this->_currency->isCurrencySupportedByIdeal($value)) {
                 unset($this->_options[$index]);
             } elseif ($value !== '') {
                 $this->_options[$index]['label'] = $this->_currency->getCurrencyLabel($value);

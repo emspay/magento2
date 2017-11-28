@@ -18,11 +18,9 @@ use EMS\Pay\Model\Info;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Checkout\Model\Session;
 
-class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
+class Sofort extends \EMS\Pay\Model\Method\EmsAbstractMethod
 {
-    const ISSUING_BANK_FIELD_NAME = 'issuing_bank';
-
-    protected $_code = Config::METHOD_BANCONTACT;
+    protected $_code = Config::METHOD_SOFORT;
 
     /**
      * Payment data
@@ -117,108 +115,9 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
     /**
      * @inheritdoc
      */
-    protected function _getMethodSpecificRequestFields()
+    protected function _getCheckoutOption()
     {
-        $fields = [];
-        $fields[Info::BANCONTACT_ISSUER_ID] = $this->_getIssuingBankCode();
-        return $fields;
+        return Config::CHECKOUT_OPTION_CLASSIC; //Sofort supports only classic
     }
 
-    /**
-     * @return string|null
-     */
-    protected function _getIssuingBankCode()
-    {
-        return $this->getInfoInstance()->getAdditionalInformation(self::ISSUING_BANK_FIELD_NAME);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function assignData(\Magento\Framework\DataObject $data)
-    {
-        parent::assignData($data);
-        $info = $this->getInfoInstance();
-        if ($data->getIssuingBank()) {
-            $info->setAdditionalInformation(self::ISSUING_BANK_FIELD_NAME, $data->getIssuingBank());
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validate()
-    {
-        parent::validate();
-        if (!$this->_isBankSelectionEnabled()) {
-            return $this;
-        }
-        $errorMessage = '';
-        $issuingBankCode = $this->getInfoInstance()->getAdditionalInformation(self::ISSUING_BANK_FIELD_NAME);
-        if ($issuingBankCode === null || $issuingBankCode == '') {
-            $errorMessage = __('Issuing bank is a required field');
-        }
-        if ($this->_validateIssuingBankCode($issuingBankCode)) {
-            $errorMessage = __('Invalid issuing bank selected');
-        }
-        if ($errorMessage !== '') {
-            throw new \Magento\Framework\Exception\LocalizedException($errorMessage);
-        }
-        return $this;
-    }
-
-    /**
-     * @param string $code
-     * @return bool
-     */
-    protected function _validateIssuingBankCode($code)
-    {
-        return !$this->_config->isBancontactIssuingBankCodeValid($code);
-    }
-
-    /**
-     * @return bool
-     */
-    protected function _isBankSelectionEnabled()
-    {
-        return $this->_config->isBancontactIssuingBankSelectionEnabled();
-    }
-    /**
-     * @inheritdoc
-     */
-    public function isApplicableToQuote($quote, $checksBitMask)
-    {
-        $isApplicable = parent::isApplicableToQuote($quote, $checksBitMask);
-        if ($isApplicable === false) {
-            return false;
-        }
-        if ($checksBitMask & self::CHECK_USE_FOR_CURRENCY) {
-            if (!$this->_currency->isCurrencySupportedByBancontact($quote->getStore()->getBaseCurrencyCode())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addTransactionData(\EMS\Pay\Model\Response $transactionResponse)
-    {
-        parent::addTransactionData($transactionResponse);
-        $info = $this->getInfoInstance();
-        $info->setAdditionalInformation(Info::ACCOUNT_OWNER_NAME, $transactionResponse->getAccountOwnerName());
-        $info->setAdditionalInformation(Info::IBAN, $transactionResponse->getIban());
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canUseForCountry($country)
-    {
-        $canUse = parent::canUseForCountry($country);
-        return $canUse && $this->_config->isCountrySupportedByBancontact($country);
-    }
 }
