@@ -17,7 +17,7 @@ class Hash
     /**
      * @var Config
      */
-    protected $_config;
+    protected $_config = null;
 
     /**
      * Hash constructor.
@@ -27,7 +27,7 @@ class Hash
         Config $config
     )
     {
-        $this->_config = $config;
+       $this->_config = $config;
     }
     /**
      * Generates payment gateway request hash
@@ -49,6 +49,16 @@ class Hash
                 $this->_getSharedSecret()
             )
         );
+    }
+
+    /**
+     * @param Config $config
+     */
+    public function setConfig(Config $config)
+    {
+        $this->_config = $config;
+
+        return $this;
     }
     /**
      * Generates payment gateway notification hash

@@ -37,9 +37,14 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected $_config = null;
 
     /**
-     * @var Hash
+     * @var \EMS\Pay\Model\HashFactory
      */
-    protected $_hashHandler;
+    protected $_hashFactory;
+
+    /**
+     * @var \EMS\Pay\Model\Hash
+     */
+    protected $hash;
 
     /**
      * @var Currency
@@ -118,9 +123,10 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
 
     /**
      * @param Currency $currency
-     * @param Hash $hashHandler
+     * @param \EMS\Pay\Model\HashFactory $hashFactory
      * @param Session $session
      * @param Mapper $mapper
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
      * @param StoreManagerInterface $storeManager
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
@@ -132,13 +138,13 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
      * @param array $data
+     * @internal param Hash $hashHandler
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Currency $currency,
-        Hash $hashHandler,
+        \EMS\Pay\Model\HashFactory $hashFactory,
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
@@ -169,13 +175,14 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
             $resourceCollection
         );
         $this->_currency = $currency;
-        $this->_hashHandler = $hashHandler;
+        $this->_hashFactory = $hashFactory;
         $this->_session = $session;
         $this->_mapper = $mapper;
         $this->_storeManager = $storeManager;
         $this->_store = $storeManager->getStore();
         $this->_configFactory = $configFactory;
         $this->_config = $this->_getConfig();
+        $this->hash = $this->_initHash();
         $this->_scopeConfig = $scopeConfig;
         $this->paymentData = $paymentData;
         $this->logger = $logger;
@@ -399,7 +406,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getHash()
     {
-        return $this->_hashHandler->generateRequestHash(
+
+        return $this->hash->generateRequestHash(
             $this->_getTransactionTime(),
             $this->_getChargeTotal(),
             $this->_getOrderCurrencyCode()
@@ -411,7 +419,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getHashAlgorithm()
     {
-        return $this->_hashHandler->getHashAlgorithm();
+        return $this->hash->getHashAlgorithm();
     }
 
     /**
@@ -780,6 +788,20 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _initOrder(\Magento\Sales\Model\Order $order) {
        $this->_order = $order;
+    }
+
+    /**
+     * @return Hash
+     */
+    protected function _initHash() {
+        if (null === $this->_config) {
+            $this->_getConfig();
+        }
+        $this->hash = $this->_hashFactory->create();
+        $this->hash->setConfig($this->_config);
+
+        return $this->hash;
+
     }
 
 }

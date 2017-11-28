@@ -38,11 +38,15 @@ class Cc extends AbstractMethodCc
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
+    /**
+     * @var \EMS\Pay\Model\HashFactory
+     */
+    private $hashFactory;
 
 
     /**
      * @param Currency $currency
-     * @param Hash $hashHandler
+     * @param \EMS\Pay\Model\HashFactory $hashFactory
      * @param Session $session
      * @param Mapper $mapper
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
@@ -58,11 +62,12 @@ class Cc extends AbstractMethodCc
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
+     * @internal param Hash $hashHandler
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Currency $currency,
-        Hash $hashHandler,
+        \EMS\Pay\Model\HashFactory $hashFactory,
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
@@ -83,7 +88,7 @@ class Cc extends AbstractMethodCc
     {
         parent::__construct(
             $currency,
-            $hashHandler,
+            $hashFactory,
             $session,
             $mapper,
             $timezone,
@@ -100,13 +105,14 @@ class Cc extends AbstractMethodCc
             $resourceCollection
         );
         $this->_currency = $currency;
-        $this->_hashHandler = $hashHandler;
+        $this->_hashFactory = $hashFactory;
         $this->_session = $session;
         $this->_mapper = $mapper;
         $this->_storeManager = $storeManager;
         $this->_store = $storeManager->getStore();
         $this->_configFactory = $configFactory;
         $this->_config = $this->_getConfig();
+        $this->hash = $this->_initHash();
         $this->_scopeConfig = $scopeConfig;
         $this->_paymentData = $paymentData;
         $this->logger = $logger;

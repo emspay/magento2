@@ -39,11 +39,15 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
+    /**
+     * @var \EMS\Pay\Model\HashFactory
+     */
+    private $hashFactory;
 
 
     /**
      * @param Currency $currency
-     * @param Hash $hashHandler
+     * @param \EMS\Pay\Model\HashFactory $hashFactory
      * @param Session $session
      * @param Mapper $mapper
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
@@ -59,11 +63,12 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
+     * @internal param Hash $hashHandler
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Currency $currency,
-        Hash $hashHandler,
+        \EMS\Pay\Model\HashFactory $hashFactory,
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
@@ -84,7 +89,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
     {
         parent::__construct(
             $currency,
-            $hashHandler,
+            $hashFactory,
             $session,
             $mapper,
             $timezone,
@@ -101,7 +106,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $resourceCollection
         );
         $this->_currency = $currency;
-        $this->_hashHandler = $hashHandler;
+        $this->hashFactory = $hashFactory;
         $this->_session = $session;
         $this->_mapper = $mapper;
         $this->_storeManager = $storeManager;
@@ -112,6 +117,7 @@ class Bancontact extends \EMS\Pay\Model\Method\EmsAbstractMethod
         $this->_paymentData = $paymentData;
         $this->logger = $logger;
         $this->timezone = $timezone;
+
     }
 
     /**
