@@ -42,6 +42,10 @@ class Success extends \Magento\Framework\App\Action\Action
      * @var \Magento\Payment\Model\Method\Logger
      */
     private $logger;
+    /**
+     * @var \EMS\Pay\Model\SessionFactory
+     */
+    private $sessionFactory;
 
     /**
      * Constructor
@@ -51,6 +55,7 @@ class Success extends \Magento\Framework\App\Action\Action
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
      * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \EMS\Pay\Model\SessionFactory $sessionFactory
      * @internal param \Magento\Authorizenet\Helper\DataFactory $dataFactory
      */
     public function __construct(
@@ -58,13 +63,15 @@ class Success extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Magento\Payment\Model\Method\Logger $logger
+        \Magento\Payment\Model\Method\Logger $logger,
+        \EMS\Pay\Model\SessionFactory $sessionFactory
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;
+        $this->sessionFactory = $sessionFactory;
     }
 
 
@@ -83,16 +90,19 @@ class Success extends \Magento\Framework\App\Action\Action
         try {
             /** @var \EMS\Pay\Model\Response $response */
             $response = $this->responseFactory->create(['response' => $this->getRequest()->getParams()]);
-            $emsQuoteId = $this->checkoutSession->getEmsQuoteId(true);
             if ($response->getTransactionStatus() === Response::STATUS_WAITING) {
                 $this->messageManager->addSuccessMessage(__('We are awaiting for payment confirmation.'));
             }
+            $emsPaySession = $this->sessionFactory->get();
+            $emsQuoteId = $emsPaySession->getId();
             $this->checkoutSession->setQuoteId($emsQuoteId);
-            $quote = $this->checkoutSession->getQuote();
-            $quote->setIsActive(false);
-            $quote->save();
-            $orderId = $this->checkoutSession->getLastRealOrder()->getId();
-            $this->_redirect('checkout/onepage/success', array('_secure'=>true));
+            $this->checkoutSession->getQuote()
+                ->setIsActive(false)
+                ->save();
+            $this->_redirect('checkout/onepage/success', array(
+                '_secure'=>true,
+                'order_ids' => $this->checkoutSession->getLastOrderId()
+            ));
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
         }

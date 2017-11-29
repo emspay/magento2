@@ -33,6 +33,10 @@ class Redirect extends \Magento\Framework\App\Action\Action
      * @var \Magento\Framework\App\Action\Context
      */
     private $context;
+    /**
+     * @var \EMS\Pay\Model\SessionFactory
+     */
+    private $sessionFactory;
 
     /**
      * Constructor
@@ -40,17 +44,20 @@ class Redirect extends \Magento\Framework\App\Action\Action
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \EMS\Pay\Model\SessionFactory $sessionFactory
      * @internal param \Magento\Authorizenet\Helper\DataFactory $dataFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \EMS\Pay\Model\SessionFactory $sessionFactory
     ) {
         $this->_coreRegistry = $coreRegistry;
         $this->checkoutSession = $checkoutSession;
         parent::__construct($context);
         $this->context = $context;
+        $this->sessionFactory = $sessionFactory;
     }
 
 
@@ -65,17 +72,18 @@ class Redirect extends \Magento\Framework\App\Action\Action
             $this->_redirect('checkout/cart');
             return;
         }
-
-        $this->checkoutSession->setEmsQuoteId($this->checkoutSession->getQuoteId());
         $order = $this->checkoutSession->getLastRealOrder();
         $payment = $order->getPayment();
+        $emsPaySession = $this->sessionFactory->get();
+        $emsPaySession->setQuoteId($this->checkoutSession->getQuoteId());
+        $emsPaySession->addCheckoutOrderIncrementId($order->getIncrementId());
+        $emsPaySession->setLastOrderIncrementId($order->getIncrementId());
         if (!$payment || !($payment->getMethodInstance() instanceof \EMS\Pay\Model\Method\EmsAbstractMethod)) {
             $this->messageManager->addErrorMessage('Payment method %s is not supported', get_class($payment->getMethodInstance()));
         }
         $method = $payment->getMethodInstance();
         $emsRedirectUrl = $method->getGatewayUrl();
         $requestArguments = $method->generateRequestFromOrder($order);
-//        $this->_redirect($emsRedirectUrl, array_merge($requestArguments));
         $this->_coreRegistry->register('emsRedirectUrl', $emsRedirectUrl);
         $this->_coreRegistry->register('requestArguments', $requestArguments);
         try {
@@ -84,9 +92,9 @@ class Redirect extends \Magento\Framework\App\Action\Action
             $this->checkoutSession->clearQuote();
             $this->checkoutSession->clearHelperData();
         } catch (\Exception $ex) {
-            $this->messageManager->addError($ex->getMessage());
+            $this->messageManager->addErrorMessage($ex->getMessage());
             $this->checkoutSession->setCancelOrder(true);
-            $this->messageManager->addError(__('There was an error processing your order. Please contact us or try again later.'));
+            $this->messageManager->addErrorMessage(__('There was an error processing your order. Please contact us or try again later.'));
             $this->_redirect('*/*/error');
         }
 
