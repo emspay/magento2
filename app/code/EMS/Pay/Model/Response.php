@@ -8,7 +8,8 @@
 
 namespace EMS\Pay\Model;
 
-use EMS\Pay\Model\Method\AbstractMethod;
+use \EMS\Pay\Model\Method\EmsAbstractMethod;
+use Magento\Directory\Model\CurrencyFactory;
 
 class Response
 {
@@ -58,14 +59,14 @@ class Response
 
 
     public function __construct(
-       Currency $currency,
+       CurrencyFactory $currencyFactory,
        Hash $hash,
        array $response
 
        
     )
     {
-        $this->_currency = $currency;
+        $this->_currencyFactory = $currencyFactory;
         $this->_hashHandler = $hash;
         $this->_response = $response;
     }
@@ -113,6 +114,9 @@ class Response
      */
     public function getTextCurrencyCode()
     {
+        if(null === $this->_currency) {
+            $this->_currency = $this->_currencyFactory->create();
+        }
         return $this->_currency->getTextCurrencyCode($this->_response[self::FIELD_CURRENCY]);
     }
 
@@ -228,10 +232,10 @@ class Response
     }
 
     /**
-     * @param AbstractMethod $payment
+     * @param EmsAbstractMethod $payment
      * @return bool
      */
-    public function validate(AbstractMethod $payment)
+    public function validate(EmsAbstractMethod $payment)
     {
         $this->_validateRequiredFields();
         $this->_validateHash($payment);
@@ -240,20 +244,20 @@ class Response
     }
 
     /**
-     * @param AbstractMethod $payment
+     * @param EmsAbstractMethod $payment
      * @return bool
      */
-    protected function _validateHash(AbstractMethod $payment)
+    protected function _validateHash(EmsAbstractMethod $payment)
     {
         return $this->_isNotification() ? $this->_validateNotificationHash($payment) : $this->_validateResponseHash($payment);
     }
 
     /**
-     * @param AbstractMethod $payment
+     * @param EmsAbstractMethod $payment
      * @return bool
      * @throws \Exception
      */
-    protected function _validateResponseHash(AbstractMethod $payment)
+    protected function _validateResponseHash(EmsAbstractMethod $payment)
     {
         $hash = $this->_hashHandler->generateResponseHash(
             $payment->getHashAlgorithmSentInTransactionRequest(),
@@ -275,7 +279,7 @@ class Response
      * @return bool
      * @throws \Exception
      */
-    protected function _validateNotificationHash(AbstractMethod $payment)
+    protected function _validateNotificationHash(EmsAbstractMethod $payment)
     {
         $hash = $this->_hashHandler->generateNotificationHash(
             $payment->getHashAlgorithmSentInTransactionRequest(),

@@ -525,7 +525,7 @@
                         <field id="checkout_option">classic</field>
                     </depends>
                 </field>
-                <field id="bank_selection_enabled " translate="label" type="select" sortOrder="45" showInDefault="1"
+                <field id="bank_selection_enabled" translate="label" type="select" sortOrder="45" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Enable issuer bank selection</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

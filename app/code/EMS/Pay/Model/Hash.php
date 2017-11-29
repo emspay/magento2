@@ -18,16 +18,23 @@ class Hash
      * @var Config
      */
     protected $_config = null;
+    /**
+     * @var \Magento\Framework\Encryption\EncryptorInterface
+     */
+    private $encryptor;
 
     /**
      * Hash constructor.
      * @param Config $config
+     * @param \Magento\Framework\Encryption\EncryptorInterface $encryptor
      */
     public function __construct(
-        Config $config
+        Config $config,
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor
     )
     {
-       $this->_config = $config;
+        $this->_config = $config;
+        $this->encryptor = $encryptor;
     }
     /**
      * Generates payment gateway request hash
@@ -127,6 +134,8 @@ class Hash
      */
     protected function _getSharedSecret()
     {
-        return $this->_config->getSharedSecret();
+        $encripted = $this->_config->getSharedSecret();
+        $decripted = $this->encryptor->decrypt($encripted);
+        return $decripted;
     }
 }

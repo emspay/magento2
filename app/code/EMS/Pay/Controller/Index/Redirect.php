@@ -53,23 +53,6 @@ class Redirect extends \Magento\Framework\App\Action\Action
         $this->context = $context;
     }
 
-    /**
-     * @return \Magento\Checkout\Model\Session
-     */
-    protected function _getCheckout()
-    {
-//        return $this->_objectManager->get('Magento\Checkout\Model\Session');
-    }
-
-//    /**
-//     * Get session model
-//     *
-//     * @return \Magento\Authorizenet\Model\Directpost\Session
-//     */
-//    protected function _getDirectPostSession()
-//    {
-//        return $this->_objectManager->get('Magento\Authorizenet\Model\Directpost\Session');
-//    }
 
     /**
      *
