@@ -5,13 +5,9 @@
  */
 namespace EMS\Pay\Controller\Index;
 
+use \EMS\Pay\Controller\EmsAbstract;
 
-/**
- * DirectPost Payment Controller
- *
- * @author     Magento Core Team <core@magentocommerce.com>
- */
-class Redirect extends \Magento\Framework\App\Action\Action
+class Redirect extends EmsAbstract
 {
     /**
      * Core registry
@@ -50,21 +46,19 @@ class Redirect extends \Magento\Framework\App\Action\Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \EMS\Pay\Model\SessionFactory $sessionFactory
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->_coreRegistry = $coreRegistry;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($context);
+        parent::__construct($context, $coreRegistry);
         $this->context = $context;
-        $this->sessionFactory = $sessionFactory;
     }
 
 
     /**
      *
      *
-     * @return void
+     * @inheritdoc
      */
     public function execute()
     {
@@ -74,10 +68,9 @@ class Redirect extends \Magento\Framework\App\Action\Action
         }
         $order = $this->checkoutSession->getLastRealOrder();
         $payment = $order->getPayment();
-        $emsPaySession = $this->sessionFactory->get();
-        $emsPaySession->setQuoteId($this->checkoutSession->getQuoteId());
-        $emsPaySession->addCheckoutOrderIncrementId($order->getIncrementId());
-        $emsPaySession->setLastOrderIncrementId($order->getIncrementId());
+        $this->_getEmsPaySession()->setQuoteId($order->getQuoteId());
+        $this->_getEmsPaySession()->addCheckoutOrderIncrementId($order->getIncrementId());
+        $this->_getEmsPaySession()->setLastOrderIncrementId($order->getIncrementId());
         if (!$payment || !($payment->getMethodInstance() instanceof \EMS\Pay\Model\Method\EmsAbstractMethod)) {
             $this->messageManager->addErrorMessage('Payment method %s is not supported', get_class($payment->getMethodInstance()));
         }
@@ -89,13 +82,14 @@ class Redirect extends \Magento\Framework\App\Action\Action
         try {
             $this->_view->addPageLayoutHandles();
             $this->_view->loadLayout(false)->renderLayout();
-            $this->checkoutSession->clearQuote();
-            $this->checkoutSession->clearHelperData();
+            $this->_getCheckout()->clearQuote();
+            $this->_getCheckout()->clearHelperData();
         } catch (\Exception $ex) {
             $this->messageManager->addErrorMessage($ex->getMessage());
-            $this->checkoutSession->setCancelOrder(true);
             $this->messageManager->addErrorMessage(__('There was an error processing your order. Please contact us or try again later.'));
-            $this->_redirect('*/*/error');
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setPath('*/*/error', ['_secure' => true]);
+            return $resultRedirect;
         }
 
     }

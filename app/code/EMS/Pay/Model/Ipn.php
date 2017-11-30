@@ -12,12 +12,13 @@ use EMS\Pay\Model\Response;
 use Magento\Sales\Model\Order;
 use EMS\Pay\Gateway\Config\Config;
 
+
 class Ipn
 {
     /**
      * @var Response
      */
-    protected $_response;
+    protected $response;
     /**
      * @var Order
      */
@@ -32,33 +33,79 @@ class Ipn
      * @var array
      */
     protected $_debugData = [];
+    /**
+     * @var ResponseFactory
+     */
+    private $responseFactory;
+    /**
+     * @var \Magento\Payment\Model\Method\Logger
+     */
+    private $logger;
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    private $orderRepository;
+    /**
+     * @var InvoiceMailerFactory
+     */
+    private $invoiceMailerFactory;
+    /**
+     * @var \EMS\Pay\Gateway\Config\ConfigFactory
+     */
+    private $configFactory;
+    /**
+     * @var Order\Invoice\Sender\EmailSender
+     */
+    private $emailSender;
+
+
+    /**
+     * Ipn constructor.
+     * @param Config $config
+     * @param ResponseFactory $responseFactory
+     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param InvoiceMailerFactory $invoiceMailerFactory
+     * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
+     * @param Order\Invoice\Sender\EmailSender $emailSender
+     */
     public function __construct(
-        Config $config
+        Config $config,
+        \EMS\Pay\Model\ResponseFactory $responseFactory,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \EMS\Pay\Model\InvoiceMailerFactory $invoiceMailerFactory,
+        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
+        \Magento\Sales\Model\Order\Invoice\Sender\EmailSender $emailSender
     )
     {
         $this->_config = $config;
+        $this->responseFactory = $responseFactory;
+        $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
+        $this->invoiceMailerFactory = $invoiceMailerFactory;
+        $this->configFactory = $configFactory;
+        $this->emailSender = $emailSender;
     }
     /**
      * Get ipn notification data, verify request, process order
      *
      * @param array $requestParams
-     * @throws Exception
+     * @throws \Exception
      */
     public function processIpnRequest(array $requestParams)
     {
         $this->_debugData[] = __('Processing IPN request');
         $this->_debugData['ipn_params'] = $requestParams;
-//        $this->_response = Mage::getModel('ems_pay/response', $requestParams);
-        $this->_response = new Response($requestParams);
+        $this->response = $this->responseFactory->create($requestParams);
         try {
             $this->_order = null;
             $this->_initOrder();
-            $this->_response->validate($this->_order->getPayment()->getMethodInstance());
+            $this->response->validate($this->_order->getPayment()->getMethodInstance());
             $this->_processOrder();
         } catch (\Exception $ex) {
             $this->_debugData['exception'] = $this->_formatExceptionForBeingLogged($ex);
             $this->_debug();
-            Mage::logException($ex);
             throw $ex;
         }
         $this->_debugData['success'] = __('IPN request processed');
@@ -67,12 +114,12 @@ class Ipn
     /**
      * IPN workflow implementation. Runs corresponding response handler depending on status
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function _processOrder()
     {
         try {
-            switch ($this->_response->getTransactionStatus()) {
+            switch ($this->response->getTransactionStatus()) {
                 case Response::STATUS_SUCCESS:
                     $this->_registerSuccess(true);
                     break;
@@ -86,7 +133,7 @@ class Ipn
         } catch (\Exception $ex) {
             $comment = $this->_createIpnComment(__('Note: %s', $ex->getMessage()));
             $this->_order->addStatusHistoryComment($comment);
-            $this->_order->save();
+            $this->orderRepository->save($this->_order);
             throw $ex;
         }
     }
@@ -97,32 +144,29 @@ class Ipn
      */
     protected function _registerSuccess($skipFraudDetection = false)
     {
-        $response = $this->_response;
+        $response = $this->response;
         $this->_importPaymentInformation();
         $payment = $this->_order->getPayment();
         $payment->setTransactionId($response->getTransactionId());
         $payment->setCurrencyCode($response->getTextCurrencyCode());
         $payment->setPreparedMessage($this->_createIpnComment(''));
         $payment->setIsTransactionClosed(0);
-        $payment->getMethodInstance()->addTransactionData($this->_response);
+        $payment->getMethodInstance()->addTransactionData($this->response);
         $payment->registerCaptureNotification(
             $response->getChargeTotal(),
             $skipFraudDetection
         );
-        $this->_order->save();
+        $this->orderRepository->save($this->_order);
         $this->_order->queueNewOrderEmail()
-            ->setIsCustomerNotified(true)
-            ->save();
-        /** @var EMS_Pay_Model_InvoiceMailer $invoiceMailer */
-        $invoiceMailer = Mage::getModel('ems_pay/invoiceMailer');
-        $invoiceMailer->setOrder($this->_order);
+            ->setIsCustomerNotified(true);
+        $this->orderRepository->save($this->_order);
+
         $ids = array();
         $invoices = $this->_order->getInvoiceCollection();
         foreach($invoices as $invoice) {
             if ($invoice) {
                 $ids[] = $invoice->getIncrementId();
-                $invoiceMailer->setInvoice($invoice);
-                $invoiceMailer->sendToQueue();
+                $this->emailSender->send($this->_order, $invoice);
             }
         }
         $multi = count($ids)>1 ? 's' : '';
@@ -135,51 +179,52 @@ class Ipn
     protected function _registerFailure()
     {
         $this->_importPaymentInformation();
-        $this->_order
-            ->registerCancellation($this->_createIpnComment(''), false)
-            ->save();
+        $this->_order->cancel();
+        $this->orderRepository->save($this->_order);
     }
     /**
      * Processes pending payment notification
      */
     protected function _registerPaymentReview()
     {
-        $response = $this->_response;
+        $response = $this->response;
         $this->_importPaymentInformation();
-        /** @var Mage_Sales_Model_Order_Payment $payment */
+        /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $this->_order->getPayment();
         $payment->setTransactionId($response->getTransactionId())
             ->setCurrencyCode($response->getTextCurrencyCode())
             ->setPreparedMessage($this->_createIpnComment(''))
             ->setIsTransactionClosed(0);
-        $payment->getMethodInstance()->addTransactionData($this->_response);
+        $payment->getMethodInstance()->addTransactionData($this->response);
         $message = '';
-        if ($payment->getMethod() == EMS_Pay_Model_Config::METHOD_KLARNA) {
+        if ($payment->getMethod() == Config::METHOD_KLARNA) {
             $message = __('Please visit the EMS virtual terminal to approve the payment for Klarna.');
         }
         $this->_order
-            ->setState(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW, true, $this->_createIpnComment($message))
-            ->save();
+            ->setState(Order::STATE_PAYMENT_REVIEW, true, $this->_createIpnComment($message));
+        $this->orderRepository->save($this->_order);
     }
     /**
      * Initializes order object based on data from transaction response
      *
-     * @return Mage_Sales_Model_Order
-     * @throws Exception
+     * @return \Magento\Sales\Model\Order
+     * @throws \Exception
      */
     protected function _initOrder()
     {
-        $orderId = $this->_response->getOrderId();
-        $this->_order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+        $orderId =
+        $this->_order = $this->orderRepository->get($this->response->getOrderId());
         if (!$this->_order->getId()) {
             $message = __("Order for id %s not found", $orderId);
             $this->_debugData['exception'] = $message;
             $this->_debug();
-            throw new Exception($message);
+            throw new \Exception($message);
         }
         //reinitialize config with method code and store id taken from order
         $methodCode = $this->_order->getPayment()->getMethod();
-        $this->_config = Mage::getModel('ems_pay/config', [$methodCode, $this->_order->getStoreId()]);
+        $this->_config =  $this->configFactory->create()
+            ->setMethod($methodCode)
+            ->setStoreId($this->_order->getStoreId());
         return $this->_order;
     }
     /**
@@ -188,10 +233,10 @@ class Ipn
      */
     protected function _createIpnComment($comment = '')
     {
-        $status = $this->_response->getTransactionStatus();
-        $message = __('IPN "%s", approval code "%s".', $status, $this->_response->getApprovalCode());
-        if ($this->_response->getFailReason()) {
-            $message .= ' ' . $this->_response->getFailReason();
+        $status = $this->response->getTransactionStatus();
+        $message = __('IPN "%s", approval code "%s".', $status, $this->response->getApprovalCode());
+        if ($this->response->getFailReason()) {
+            $message .= ' ' . $this->response->getFailReason();
         }
         if ($comment) {
             $message .= ' ' . $comment;
@@ -209,12 +254,12 @@ class Ipn
         $payment = $this->_order->getPayment();
         $currentInfo = $payment->getAdditionalInformation();
         $data = [
-            EMS_Pay_Model_Info::TRANSACTION_ID => $this->_response->getTransactionId(),
-            EMS_Pay_Model_Info::APPROVAL_CODE => $this->_response->getApprovalCode(),
-            EMS_Pay_Model_Info::REFNUMBER => $this->_response->getRefNumber(),
-            EMS_Pay_Model_Info::IPG_TRANSACTION_ID => $this->_response->getIpgTransactionId(),
-            EMS_Pay_Model_Info::ENDPOINT_TRANSACTION_ID => $this->_response->getEndpointTransactionId(),
-            EMS_Pay_Model_Info::PROCESSOR_RESPONSE_CODE => $this->_response->getProcessorResponseCode(),
+            Info::TRANSACTION_ID => $this->response->getTransactionId(),
+            Info::APPROVAL_CODE => $this->response->getApprovalCode(),
+            Info::REFNUMBER => $this->response->getRefNumber(),
+            Info::IPG_TRANSACTION_ID => $this->response->getIpgTransactionId(),
+            Info::ENDPOINT_TRANSACTION_ID => $this->response->getEndpointTransactionId(),
+            Info::PROCESSOR_RESPONSE_CODE => $this->response->getProcessorResponseCode(),
         ];
         foreach ($data as $key => $value) {
             $payment->setAdditionalInformation($key, $value);
@@ -227,16 +272,16 @@ class Ipn
     protected function _debug()
     {
         if ($this->_config && $this->_config->isDebuggingEnabled()) {
-            Mage::getModel('core/log_adapter', $this->_config->getLogFile())->log($this->_debugData);
+            $this->logger->debug($this->_debugData);
         }
     }
     /**
      * Formats exception into text message that can be logged
      *
-     * @param Exception $ex
+     * @param \Exception $ex
      * @return string
      */
-    protected function _formatExceptionForBeingLogged(Exception $ex)
+    protected function _formatExceptionForBeingLogged(\Exception $ex)
     {
         return $ex->getMessage() . ' in ' . $ex->getFile() . ':' . $ex->getLine();
     }

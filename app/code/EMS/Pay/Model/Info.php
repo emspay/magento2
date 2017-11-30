@@ -150,7 +150,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
         foreach ($fields as $field)
         {
             if ($payment->hasAdditionalInformation($field)) {
-                $info[$this->_getFieldLabel($field)] = $payment->getAdditionalInformation($field);
+                $info[$this->_getFieldLabel($field)->getText()] = $payment->getAdditionalInformation($field);
             }
         }
 

@@ -6,7 +6,7 @@ use \EMS\Pay\Model\Response;
 use \EMS\Pay\Controller\EmsAbstract;
 use Magento\Framework\Controller\ResultFactory;
 
-class Success extends EmsAbstract
+class Ipn extends EmsAbstract
 {
     /**
      * Core registry
@@ -14,6 +14,11 @@ class Success extends EmsAbstract
      * @var \Magento\Framework\Registry
      */
     protected $_coreRegistry = null;
+
+    /**
+     * @var \EMS\Pay\Model\Ipn
+     */
+    protected $ipn;
 
     /**
      * @var \Magento\Checkout\Model\Session
@@ -28,6 +33,10 @@ class Success extends EmsAbstract
      * @var \Magento\Payment\Model\Method\Logger
      */
     private $logger;
+    /**
+     * @var \EMS\Pay\Model\IpnFactory
+     */
+    private $ipnFactory;
 
     /**
      * Constructor
@@ -37,13 +46,15 @@ class Success extends EmsAbstract
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
      * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \EMS\Pay\Model\IpnFactory $ipnFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Magento\Payment\Model\Method\Logger $logger
+        \Magento\Payment\Model\Method\Logger $logger,
+        \EMS\Pay\Model\IpnFactory $ipnFactory
     )
     {
         parent::__construct($context, $coreRegistry);
@@ -51,6 +62,7 @@ class Success extends EmsAbstract
         $this->logger = $logger;
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;
+        $this->ipnFactory = $ipnFactory;
     }
 
 
@@ -67,21 +79,14 @@ class Success extends EmsAbstract
             return $resultRedirect;
         }
         try {
-            /** @var \EMS\Pay\Model\Response $response */
-            $response = $this->responseFactory->create(['response' => $this->getRequest()->getParams()]);
-            if ($response->getTransactionStatus() === Response::STATUS_WAITING) {
-                $this->messageManager->addSuccessMessage(__('We are awaiting for payment confirmation.'));
-
-            }
-            $this->_returnCustomerQuoteSuccess();
-
+            /** @var \EMS\Pay\Model\Ipn $ipn */
+            $data = $this->getRequest()->getParams();
+            $this->ipn = $this->ipnFactory->create();
+            $this->ipn->processIpnRequest($data);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
+            $this->getResponse()->setHttpResponseCode(500);
         }
-
-
-        $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
-        return $resultRedirect;
-
+        return;
     }
 }

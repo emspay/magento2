@@ -1,12 +1,17 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: dev01
+ * Date: 30.11.17
+ * Time: 12:15
+ */
 
 namespace EMS\Pay\Controller\Index;
 
-use \EMS\Pay\Model\Response;
 use \EMS\Pay\Controller\EmsAbstract;
-use Magento\Framework\Controller\ResultFactory;
+use \Magento\Framework\Controller\ResultFactory;
 
-class Success extends EmsAbstract
+class Fail extends EmsAbstract
 {
     /**
      * Core registry
@@ -44,8 +49,7 @@ class Success extends EmsAbstract
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
         \Magento\Payment\Model\Method\Logger $logger
-    )
-    {
+    ) {
         parent::__construct($context, $coreRegistry);
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
@@ -60,27 +64,17 @@ class Success extends EmsAbstract
     public function execute()
     {
         $this->logger->debug($this->getRequest()->getParams());
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 
-        if (!$this->getRequest()->isPost()) {
-            return $resultRedirect;
-        }
         try {
             /** @var \EMS\Pay\Model\Response $response */
             $response = $this->responseFactory->create(['response' => $this->getRequest()->getParams()]);
-            if ($response->getTransactionStatus() === Response::STATUS_WAITING) {
-                $this->messageManager->addSuccessMessage(__('We are awaiting for payment confirmation.'));
-
-            }
-            $this->_returnCustomerQuoteSuccess();
-
+            $this->messageManager->addErrorMessage($response->getFailReason());
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
         }
 
-
-        $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
         return $resultRedirect;
 
     }

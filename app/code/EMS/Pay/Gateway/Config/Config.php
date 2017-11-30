@@ -644,14 +644,17 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         } elseif (is_string($method)) {
             $this->_methodCode = $method;
         }
+        return $this;
     }
 
     /**
      * @param int $storeId
+     * @return $this
      */
     public function setStoreId($storeId)
     {
         $this->_storeId = (int) $storeId;
+        return $this;
     }
 
     /**

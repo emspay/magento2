@@ -6,7 +6,7 @@ use \EMS\Pay\Model\Response;
 use \EMS\Pay\Controller\EmsAbstract;
 use Magento\Framework\Controller\ResultFactory;
 
-class Success extends EmsAbstract
+class Error extends EmsAbstract
 {
     /**
      * Core registry
@@ -55,6 +55,7 @@ class Success extends EmsAbstract
 
 
     /**
+     *  Action used to restore quote if exception occurred while redirecting user to payment gateway if payment failed
      * @inheritdoc
      */
     public function execute()
@@ -67,20 +68,15 @@ class Success extends EmsAbstract
             return $resultRedirect;
         }
         try {
-            /** @var \EMS\Pay\Model\Response $response */
-            $response = $this->responseFactory->create(['response' => $this->getRequest()->getParams()]);
-            if ($response->getTransactionStatus() === Response::STATUS_WAITING) {
-                $this->messageManager->addSuccessMessage(__('We are awaiting for payment confirmation.'));
-
-            }
-            $this->_returnCustomerQuoteSuccess();
+                $message = __('Order canceled because of error');
+                $this->_returnCustomerQuoteError(true, $message);
 
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
         }
 
 
-        $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
+        $resultRedirect->setPath('checkout', ['_secure' => true]);
         return $resultRedirect;
 
     }

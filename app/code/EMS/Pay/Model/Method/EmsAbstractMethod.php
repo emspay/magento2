@@ -205,7 +205,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @param string $paymentAction
      * @param Varien_Object
      *
-     * @return \EMS\Pay\Model\Method\AbstractMethod
+     * @return \EMS\Pay\Model\Method\EmsAbstractMethod
      */
     public function initialize($paymentAction, $stateObject)
     {
@@ -249,7 +249,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
 
         try {
             $fields = [
-                \EMS\Pay\Model\Info::TXNTYPE => $config->getTxnType(),
+                Info::TXNTYPE => $config->getTxnType(),
                 \EMS\Pay\Model\Info::TIMEZONE => $this->_getTimezone(),
                 \EMS\Pay\Model\Info::TXNDATETIME => $this->_getTransactionTime(),
                 \EMS\Pay\Model\Info::HASH_ALGORITHM => $this->_getHashAlgorithm(),
