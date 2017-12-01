@@ -12,31 +12,24 @@
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
-        <div class="payment-method-ems-pay-cc-icons">
-            <ul class="credit-card-types">
-                <!-- ko foreach: {data: getCardList(), as: 'item'} -->
-                <li class="item" >
-                    <!--ko if: $parent.getLogos(item.value) -->
-                    <img data-bind="attr: {
-                        'src': $parent.getLogos(item.value),
-                        'alt': item.type
+        <div class="payment-method-ems-pay-ideal-icons">
+            <img data-bind="attr: {
+                        'src': getLogos(getCode()),
+                        'alt': getTitle()
                         }">
-                    <!--/ko-->
-                </li>
-                <!--/ko-->
-            </ul>
         </div>
-        <div class="payment-method-ems-pay-cc-select">
-            <span><!-- ko i18n: 'Please choose card type*'--><!-- /ko --></span>
+        <p><!-- ko i18n: 'Pay online with Ideal'--><!-- /ko --></p>
+        <div class="payment-method-ems-pay-ideal-select">
+            <span><!-- ko i18n: 'Please select issuing bank *'--><!-- /ko --></span>
             <select name="payment[subscription_id]" class="select input-text required-entry"
                     data-validate="{required:true, 'validate-select':true}"
                     data-bind="
                                     attr: {id: getCode()+'_payment_profile_id'},
-                                    options: getCardList(),
+                                    options: getBankList(),
                                     optionsValue: 'value',
                                     optionsText: 'type',
                                     optionsCaption: $t('--Please Select--'),
-                                    value: selectedCardType
+                                    value: selectedBank
                                     ">
             </select>
         </div>

@@ -45,7 +45,7 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
     /**
      * Get session model
      *
-     * @return \Magento\Authorizenet\Model\Directpost\Session
+     * @return \EMS\Pay\Model\Session
      */
     protected function _getEmsPaySession()
     {
@@ -81,11 +81,12 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                         ->setLastRealOrderId($order->getIncrementId());
                     $this->_getCheckout()->replaceQuote($quote);
                 } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                    throw new \Magento\Framework\Exception\NoSuchEntityException($e);
                 }
                 $this->_getEmsPaySession()->removeCheckoutOrderIncrementId($incrementId);
                 $this->_getEmsPaySession()->unsetData('quote_id');
                 if ($cancelOrder) {
-                    $order->registerCancellation($errorMsg)->save();
+                    $order->cancel($errorMsg)->save();
                 }
             }
         }
@@ -108,11 +109,12 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                     $quoteRepository->save($quote);
                     $this->_getCheckout()->replaceQuote($quote);
                 } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                    throw new \Magento\Framework\Exception\NoSuchEntityException($e);
                 }
                 $this->_getEmsPaySession()->removeCheckoutOrderIncrementId($incrementId);
                 $this->_getEmsPaySession()->unsetData('quote_id');
                 if ($cancelOrder) {
-                    $order->registerCancellation($errorMsg)->save();
+                    $order->cancel($errorMsg)->save();
                 }
             }
         }

@@ -238,7 +238,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         self::METHOD_MASTER_PASS => 'masterpass.png',
         self::METHOD_PAYPAL => 'paypal.png',
         self::METHOD_SOFORT => 'sofort.png',
-        self::METHOD_BANCONTACT => 'bancontact.svg',
+        self::METHOD_BANCONTACT => 'bancontact.png',
     ];
     /**
      * @var \Magento\Framework\View\Asset\Repository
@@ -445,6 +445,40 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         $banks = $this->_idealIssuingBanks;
         foreach ($banks as $code => $name) {
             $banks[$code] = __($name);
+        }
+
+        return $banks;
+    }
+
+    /**
+     * Returns list of enabled issuing banks supported by iDEAL
+     *
+     * @return array bank names indexed by bank code
+     */
+    public function getIdealEnabledIssuingBanks()
+    {
+        $banks = [];
+        foreach ($this->_idealIssuingBanks as $code => $name) {
+            if ($this->isIdealIssuingBankCodeValid($code)) {
+                $banks[$code] = __($name);
+            }
+        }
+
+        return $banks;
+    }
+
+    /**
+     * Returns list of enabled issuing banks supported by Bancontact
+     *
+     * @return array bank names indexed by bank code
+     */
+    public function getBancontactEnabledIssuingBanks()
+    {
+        $banks = [];
+        foreach ($this->_idealIssuingBanks as $code => $name) {
+            if ($this->isBancontactIssuingBankCodeValid($code)) {
+                $banks[$code] = __($name);
+            }
         }
 
         return $banks;

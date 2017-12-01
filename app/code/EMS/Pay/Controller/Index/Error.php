@@ -36,7 +36,7 @@ class Error extends EmsAbstract
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -60,7 +60,7 @@ class Error extends EmsAbstract
      */
     public function execute()
     {
-        $this->logger->debug($this->getRequest()->getParams());
+        $this->logger->debug(var_export($this->getRequest()->getParams()));
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 

@@ -22,10 +22,6 @@ class Redirect extends EmsAbstract
     private $checkoutSession;
 
     /**
-     * @var \Magento\Authorizenet\Helper\DataFactory
-     */
-    protected $dataFactory;
-    /**
      * @var \Magento\Framework\App\Action\Context
      */
     private $context;
@@ -40,8 +36,6 @@ class Redirect extends EmsAbstract
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \EMS\Pay\Model\SessionFactory $sessionFactory
-     * @internal param \Magento\Authorizenet\Helper\DataFactory $dataFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

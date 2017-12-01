@@ -25,7 +25,7 @@ class Success extends EmsAbstract
      */
     private $responseFactory;
     /**
-     * @var \Magento\Payment\Model\Method\Logger
+     * @var \Psr\Log\LoggerInterface
      */
     private $logger;
 
@@ -43,7 +43,7 @@ class Success extends EmsAbstract
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Magento\Payment\Model\Method\Logger $logger
+        \Psr\Log\LoggerInterface $logger
     )
     {
         parent::__construct($context, $coreRegistry);
@@ -59,7 +59,7 @@ class Success extends EmsAbstract
      */
     public function execute()
     {
-        $this->logger->debug($this->getRequest()->getParams());
+        $this->logger->debug(var_export($this->getRequest()->getParams()));
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 

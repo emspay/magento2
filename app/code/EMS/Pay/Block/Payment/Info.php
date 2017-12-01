@@ -71,7 +71,7 @@ class Info extends \Magento\Payment\Block\Info\Cc
         $payment = $this->getInfo();
 
         if ($this->getInfo()->getCcLast4()) {
-            $transport->addData([__('Credit Card Number') => $this->getInfo()->getCcLast4()]);
+            $transport->addData([__('Credit Card Number')->getText() => $this->getInfo()->getCcLast4()]);
         }
 
         if ($this->getIsSecureMode()) {

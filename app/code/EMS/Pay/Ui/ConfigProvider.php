@@ -69,6 +69,31 @@ class ConfigProvider  implements ConfigProviderInterface
                 Config::METHOD_SOFORT => [
                     'isActive' => $this->config->isActive(Config::METHOD_SOFORT),
                 ],
+                Config::METHOD_MAESTRO => [
+                    'isActive' => $this->config->isActive(Config::METHOD_MAESTRO),
+                    'availableCardTypes' => $this->config->getMaestroCardTypes(),
+                    'logoFileNames' => $this->config->getLogoImagesUrls(),
+                    'cardTypeFieldName' => 'debit_card_type',
+                    Config::XML_CONFIG_CC_3DSECURE => true,
+                ],
+                Config::METHOD_MASTER_PASS => [
+                    'isActive' => $this->config->isActive(Config::METHOD_MASTER_PASS),
+                ],
+                Config::METHOD_PAYPAL => [
+                    'isActive' => $this->config->isActive(Config::METHOD_PAYPAL),
+                ],
+                Config::METHOD_IDEAL => [
+                    'isActive' => $this->config->isActive(Config::METHOD_IDEAL),
+                    'isBankSelectionEnabled' => $this->config->isIdealIssuingBankSelectionEnabled(),
+                    'issuingBank' => 'issuing_bank',
+                    'availableBanks' => $this->config->getIdealEnabledIssuingBanks(),
+                ],
+                Config::METHOD_BANCONTACT => [
+                    'isActive' => $this->config->isActive(Config::METHOD_BANCONTACT),
+                    'isBankSelectionEnabled' => $this->config->isBancontactIssuingBankSelectionEnabled(),
+                    'issuingBank' => 'issuing_bank',
+                    'availableBanks' => $this->config->getBancontactEnabledIssuingBanks(),
+                ],
                 'emsPayGeneral' => [
                     'emspayRedirectUrl' => Config::CHECKOUT_REDIRECT_URL,
                     'logoFileNames' => $this->config->getLogoImagesUrls(),

@@ -72,7 +72,7 @@ class Ipn
     public function __construct(
         Config $config,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Magento\Payment\Model\Method\Logger $logger,
+        \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \EMS\Pay\Model\InvoiceMailerFactory $invoiceMailerFactory,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,

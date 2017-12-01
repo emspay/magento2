@@ -45,7 +45,7 @@ class Ipn extends EmsAbstract
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Psr\Log\LoggerInterface $logger
      * @param \EMS\Pay\Model\IpnFactory $ipnFactory
      */
     public function __construct(
@@ -53,7 +53,7 @@ class Ipn extends EmsAbstract
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Magento\Payment\Model\Method\Logger $logger,
+        \Psr\Log\LoggerInterface $logger,
         \EMS\Pay\Model\IpnFactory $ipnFactory
     )
     {
@@ -71,7 +71,7 @@ class Ipn extends EmsAbstract
      */
     public function execute()
     {
-        $this->logger->debug($this->getRequest()->getParams());
+        $this->logger->debug(var_export($this->getRequest()->getParams()));
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 

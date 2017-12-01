@@ -81,7 +81,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
 
     const IDEAL_ISSUER_ID = 'idealIssuerID';
 
-    const BANCONTACT_ISSUER_ID = 'bancontactIssuerID';
+    const BANCONTACT_ISSUER_ID = 'bancontactIssuer';
 
     const CART_ITEM_FIELD_INDEX = 'item';
     const CART_ITEM_FIELD_SEPARATOR = ';';

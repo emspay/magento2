@@ -187,6 +187,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->paymentData = $paymentData;
         $this->logger = $logger;
         $this->timezone = $timezone;
+        $this->initDebugger();
     }
 
     /**
@@ -700,6 +701,10 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         return $info->getAdditionalInformation(Info::HASH_ALGORITHM);
     }
 
+    protected function initDebugger () {
+        $this->_logger->pushHandler(new \Monolog\Handler\StreamHandler(BP . '/var/log/'. $this->_code . '.log'));
+    }
+
     /**
      * @inheritdoc
      */
@@ -707,6 +712,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     {
         if ($this->getDebugFlag()) {
             $this->_logger->debug(var_export($debugData, true));
+
         }
     }
 
@@ -769,16 +775,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     public function generateRequestFromOrder(\Magento\Sales\Model\Order $order)
     {
-
-        $request = [];
         $this->_order = $order;
-
-//        $request = $this->requestFactory->create()
-//            ->setConstantData($this)
-//            ->setDataFromOrder($order, $this)
-//            ->signRequestData();
-
-//        $this->_debug(['request' => $request->getData()]);
         $request = $this->getRedirectFormFields();
         return $request;
     }
