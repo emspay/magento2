@@ -16,6 +16,7 @@ define(
             emsPayPayPal = 'ems_pay_paypal',
             emsPayKlar = 'ems_pay_paypal',
             emsPayBancontact = 'ems_pay_bancontact',
+            emsPayKlarna = 'ems_pay_klarna',
             emsPayIdeal = 'ems_pay_ideal';
 
 
@@ -72,6 +73,14 @@ define(
                 {
                     type: emsPayIdeal,
                     component: 'EMS_Pay/js/view/payment/method-renderer/ems_pay_ideal'
+                }
+            );
+        }
+        if (config[emsPayKlarna].isActive) {
+            rendererList.push(
+                {
+                    type: emsPayKlarna,
+                    component: 'EMS_Pay/js/view/payment/method-renderer/ems_pay_klarna'
                 }
             );
         }

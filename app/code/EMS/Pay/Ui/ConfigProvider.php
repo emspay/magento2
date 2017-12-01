@@ -64,7 +64,6 @@ class ConfigProvider  implements ConfigProviderInterface
                         'logoFileNames' => $this->config->getLogoImagesUrls(),
                         Config::XML_CONFIG_CC_3DSECURE => $this->config->isCreditCard3DSecureEnabled(),
                         'cardTypeFieldName' => 'ems_card_type',
-
                 ],
                 Config::METHOD_SOFORT => [
                     'isActive' => $this->config->isActive(Config::METHOD_SOFORT),
@@ -93,6 +92,9 @@ class ConfigProvider  implements ConfigProviderInterface
                     'isBankSelectionEnabled' => $this->config->isBancontactIssuingBankSelectionEnabled(),
                     'issuingBank' => 'issuing_bank',
                     'availableBanks' => $this->config->getBancontactEnabledIssuingBanks(),
+                ],
+                Config::METHOD_KLARNA => [
+                    'isActive' => $this->config->isActive(Config::METHOD_KLARNA),
                 ],
                 'emsPayGeneral' => [
                     'emspayRedirectUrl' => Config::CHECKOUT_REDIRECT_URL,
