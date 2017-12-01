@@ -59,14 +59,14 @@ define(
                 }
             );
         }
-        // if (config[emsPayBancontact].isActive) {
-        //     rendererList.push(
-        //         {
-        //             type: emsPayBancontact,
-        //             component: 'EMS_Pay/js/view/payment/method-renderer/ems_pay_bancontact'
-        //         }
-        //     );
-        // }
+        if (config[emsPayBancontact].isActive) {
+            rendererList.push(
+                {
+                    type: emsPayBancontact,
+                    component: 'EMS_Pay/js/view/payment/method-renderer/ems_pay_bancontact'
+                }
+            );
+        }
         if (config[emsPayIdeal].isActive) {
             rendererList.push(
                 {
