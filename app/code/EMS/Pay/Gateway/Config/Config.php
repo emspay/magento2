@@ -475,7 +475,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     public function getBancontactEnabledIssuingBanks()
     {
         $banks = [];
-        foreach ($this->_idealIssuingBanks as $code => $name) {
+        foreach ($this->_bancontactIssuingBanks as $code => $name) {
             if ($this->isBancontactIssuingBankCodeValid($code)) {
                 $banks[$code] = __($name);
             }

@@ -141,8 +141,9 @@ class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
     {
         parent::assignData($data);
         $info = $this->getInfoInstance();
-        if ($data->getIssuingBank()) {
-            $info->setAdditionalInformation(self::ISSUING_BANK_FIELD_NAME, $data->getIssuingBank());
+        $issuingBank = $data->getAdditionalData(self::ISSUING_BANK_FIELD_NAME);
+        if (isset($issuingBank)) {
+            $info->setAdditionalInformation(self::ISSUING_BANK_FIELD_NAME, $issuingBank);
         }
         return $this;
     }
