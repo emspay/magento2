@@ -8,6 +8,8 @@
 
 namespace EMS\Pay\Controller;
 
+use \EMS\Pay\Gateway\Config\Config;
+
 
 abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
 {

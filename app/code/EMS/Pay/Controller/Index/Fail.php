@@ -30,9 +30,9 @@ class Fail extends EmsAbstract
      */
     private $responseFactory;
     /**
-     * @var \Magento\Payment\Model\Method\Logger
+     * @var \EMS\Pay\Model\Debugger
      */
-    private $logger;
+    private $debugger;
 
     /**
      * Constructor
@@ -41,18 +41,19 @@ class Fail extends EmsAbstract
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \EMS\Pay\Model\Debugger $debugger
+     * @internal param \Magento\Payment\Model\Method\Logger $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Psr\Log\LoggerInterface $logger
+        \EMS\Pay\Model\Debugger $debugger
     ) {
         parent::__construct($context, $coreRegistry);
         $this->checkoutSession = $checkoutSession;
-        $this->logger = $logger;
+        $this->logger = $debugger;
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;
     }
@@ -63,7 +64,7 @@ class Fail extends EmsAbstract
      */
     public function execute()
     {
-        $this->logger->debug(var_export($this->getRequest()->getParams()));
+        $this->debugger::debug(var_export($this->getRequest()->getParams()), Config::DEFAULT_LOG_FILE);
 
         try {
             /** @var \EMS\Pay\Model\Response $response */

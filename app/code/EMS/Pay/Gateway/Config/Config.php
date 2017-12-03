@@ -654,7 +654,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      */
     public function getLogFile()
     {
-        return $this->_methodCode != '' ? "payment_{$this->_methodCode}.log" : self::DEFAULT_LOG_FILE;
+        return $this->_methodCode != '' ? "payment_{$this->_methodCode}" : self::DEFAULT_LOG_FILE;
     }
 
     /**

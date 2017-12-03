@@ -119,6 +119,10 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
+    /**
+     * @var \EMS\Pay\Logger\Debugger
+     */
+    private $debugger;
 
 
     /**
@@ -127,6 +131,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @param Session $session
      * @param Mapper $mapper
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
+     * @param \EMS\Pay\Model\Debugger $debugger
      * @param StoreManagerInterface $storeManager
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
@@ -148,6 +153,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \EMS\Pay\Model\Debugger $debugger,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -187,7 +193,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->paymentData = $paymentData;
         $this->logger = $logger;
         $this->timezone = $timezone;
-        $this->initDebugger();
+        $this->debugger = $debugger;
     }
 
     /**
@@ -701,17 +707,13 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         return $info->getAdditionalInformation(Info::HASH_ALGORITHM);
     }
 
-    protected function initDebugger () {
-        $this->_logger->pushHandler(new \Monolog\Handler\StreamHandler(BP . '/var/log/'. $this->_code . '.log'));
-    }
-
     /**
      * @inheritdoc
      */
     protected function _debug($debugData)
     {
         if ($this->getDebugFlag()) {
-            $this->_logger->debug(var_export($debugData, true));
+            $this->debugger::debug(var_export($debugData), $this->_code);
 
         }
     }

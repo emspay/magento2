@@ -2,9 +2,11 @@
 
 namespace EMS\Pay\Controller\Index;
 
+use EMS\Pay\Gateway\Config\Config;
 use \EMS\Pay\Model\Response;
 use \EMS\Pay\Controller\EmsAbstract;
 use Magento\Framework\Controller\ResultFactory;
+
 
 class Success extends EmsAbstract
 {
@@ -27,7 +29,7 @@ class Success extends EmsAbstract
     /**
      * @var \Psr\Log\LoggerInterface
      */
-    private $logger;
+    private $debugger;
 
     /**
      * Constructor
@@ -36,19 +38,19 @@ class Success extends EmsAbstract
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \EMS\Pay\Model\Debugger $debugger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Psr\Log\LoggerInterface $logger
+        \EMS\Pay\Model\Debugger $debugger
     )
     {
         parent::__construct($context, $coreRegistry);
         $this->checkoutSession = $checkoutSession;
-        $this->logger = $logger;
+        $this->debugger = $debugger;
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;
     }
@@ -59,7 +61,7 @@ class Success extends EmsAbstract
      */
     public function execute()
     {
-        $this->logger->debug(var_export($this->getRequest()->getParams()));
+        $this->debugger::debug(var_export($this->getRequest()->getParams()), Config::DEFAULT_LOG_FILE);
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 
