@@ -9,6 +9,7 @@
 namespace EMS\Pay\Model;
 
 use EMS\Pay\Model\Response;
+use \EMS\Pay\Model\Debugger;
 use Magento\Sales\Model\Order;
 use EMS\Pay\Gateway\Config\Config;
 
@@ -38,9 +39,9 @@ class Ipn
      */
     private $responseFactory;
     /**
-     * @var \EMS\Pay\Model\Debugger
+     * @var \Magento\Payment\Model\Method\Logger
      */
-    private $debugger;
+    private $logger;
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface
      */
@@ -63,7 +64,7 @@ class Ipn
      * Ipn constructor.
      * @param Config $config
      * @param ResponseFactory $responseFactory
-     * @param \EMS\Pay\Model\Debugger $debugger
+     * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      * @param InvoiceMailerFactory $invoiceMailerFactory
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
@@ -72,7 +73,7 @@ class Ipn
     public function __construct(
         Config $config,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \EMS\Pay\Model\Debugger $debugger,
+        \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \EMS\Pay\Model\InvoiceMailerFactory $invoiceMailerFactory,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
@@ -81,7 +82,7 @@ class Ipn
     {
         $this->_config = $config;
         $this->responseFactory = $responseFactory;
-        $this->debugger = $debugger;
+        $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->invoiceMailerFactory = $invoiceMailerFactory;
         $this->configFactory = $configFactory;
@@ -272,7 +273,7 @@ class Ipn
     protected function _debug()
     {
         if ($this->_config && $this->_config->isDebuggingEnabled()) {
-            $this->debugger::debug(var_export($this->_debugData), $this->_config->getLogFile());
+            Debugger::debug($this->_debugData, $this->_config->getLogFile());
         }
     }
     /**

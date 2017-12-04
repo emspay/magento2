@@ -25,10 +25,6 @@ class Redirect extends EmsAbstract
      * @var \Magento\Framework\App\Action\Context
      */
     private $context;
-    /**
-     * @var \EMS\Pay\Model\SessionFactory
-     */
-    private $sessionFactory;
 
     /**
      * Constructor
@@ -56,9 +52,10 @@ class Redirect extends EmsAbstract
      */
     public function execute()
     {
+        $resultRedirect = $this->resultRedirectFactory->create();
         if (!$this->checkoutSession->getLastSuccessQuoteId()) {
-            $this->_redirect('checkout/cart');
-            return;
+            $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
+            return $resultRedirect;
         }
         $order = $this->checkoutSession->getLastRealOrder();
         $payment = $order->getPayment();
@@ -81,7 +78,6 @@ class Redirect extends EmsAbstract
         } catch (\Exception $ex) {
             $this->messageManager->addErrorMessage($ex->getMessage());
             $this->messageManager->addErrorMessage(__('There was an error processing your order. Please contact us or try again later.'));
-            $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath('*/*/error', ['_secure' => true]);
             return $resultRedirect;
         }

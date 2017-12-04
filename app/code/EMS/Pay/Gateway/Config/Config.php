@@ -110,7 +110,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      *
      * @var array ISO 3166-1 alpha-2 (dwo letter) country codes
      */
-    protected $_klarnaSupportedCountries = [
+    protected   $_klarnaSupportedCountries = [
         'AT', // Austria
         'DE', // Germany
         'NL', // Netherlands

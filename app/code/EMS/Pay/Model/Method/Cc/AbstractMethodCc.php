@@ -11,8 +11,8 @@ namespace EMS\Pay\Model\Method\Cc;
 use EMS\Pay\Model\Response;
 use EMS\Pay\Model\Method\Mapper;
 use EMS\Pay\Model\Currency;
-use EMS\Pay\Model\Hash;
 use EMS\Pay\Model\Info;
+use \EMS\Pay\Model\Debugger;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Checkout\Model\Session;
 
@@ -40,10 +40,6 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
-    /**
-     * @var \EMS\Pay\Model\Debugger
-     */
-    private $debugger;
 
 
     /**
@@ -74,7 +70,6 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
-        \EMS\Pay\Model\Debugger $debugger,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -96,7 +91,6 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $session,
             $mapper,
             $timezone,
-            $debugger,
             $storeManager,
             $configFactory,
             $context,
@@ -122,7 +116,6 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
         $this->_paymentData = $paymentData;
         $this->logger = $logger;
         $this->timezone = $timezone;
-        $this->debugger = $debugger;
     }
 
     /**
