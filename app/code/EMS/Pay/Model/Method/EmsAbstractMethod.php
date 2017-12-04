@@ -459,8 +459,9 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected function _getTimezone()
     {
 //        $date = new \DateTime($this->_order->getCreatedAt());
-        $this->timezone->getConfigTimezone('store', $this->getStore());
-        return $this->timezone->getConfigTimezone('store', $this->getStore());;
+//        $this->timezone->getConfigTimezone('store', $this->getStore());
+//        $this->timezone->scopeDate($this->getStore(), $this->_order->getCreatedAt())
+        return $this->timezone->getConfigTimezone('store', $this->getStore());
     }
 
     /**
@@ -468,8 +469,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getTransactionTime()
     {
-        $date = new \DateTime($this->_order->getCreatedAt());
-        return $date->format(Config::TXNDATE_ZEND_DATE_FORMAT);
+//        $date = new \DateTime($this->_order->getCreatedAt());
+        return $this->timezone->scopeDate($this->getStore(), $this->_order->getCreatedAt())->format(Config::TXNDATE_ZEND_DATE_FORMAT);
     }
 
     /**
