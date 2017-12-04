@@ -45,6 +45,7 @@ class Masterpass extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @param Session $session
      * @param Mapper $mapper
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
+     * @param \EMS\Pay\Model\Debugger $debugger
      * @param StoreManagerInterface $storeManager
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
@@ -66,6 +67,7 @@ class Masterpass extends \EMS\Pay\Model\Method\EmsAbstractMethod
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \EMS\Pay\Model\Debugger $debugger,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -87,6 +89,7 @@ class Masterpass extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $session,
             $mapper,
             $timezone,
+            $debugger,
             $storeManager,
             $configFactory,
             $context,

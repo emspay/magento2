@@ -40,6 +40,10 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
+    /**
+     * @var \EMS\Pay\Model\Debugger
+     */
+    private $debugger;
 
 
     /**
@@ -48,6 +52,7 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @param Session $session
      * @param Mapper $mapper
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
+     * @param \EMS\Pay\Model\Debugger $debugger
      * @param StoreManagerInterface $storeManager
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
@@ -69,6 +74,7 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \EMS\Pay\Model\Debugger $debugger,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -90,6 +96,7 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $session,
             $mapper,
             $timezone,
+            $debugger,
             $storeManager,
             $configFactory,
             $context,
@@ -115,6 +122,7 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
         $this->_paymentData = $paymentData;
         $this->logger = $logger;
         $this->timezone = $timezone;
+        $this->debugger = $debugger;
     }
 
     /**

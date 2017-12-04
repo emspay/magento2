@@ -42,10 +42,11 @@ class Paypal extends \EMS\Pay\Model\Method\EmsAbstractMethod
 
     /**
      * @param Currency $currency
-     * @param Hash $hashHandler
+     * @param \EMS\Pay\Model\HashFactory $hashFactory
      * @param Session $session
      * @param Mapper $mapper
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
+     * @param \EMS\Pay\Model\Debugger $debugger
      * @param StoreManagerInterface $storeManager
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param \Magento\Framework\Model\Context $context
@@ -58,6 +59,7 @@ class Paypal extends \EMS\Pay\Model\Method\EmsAbstractMethod
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
+     * @internal param Hash $hashHandler
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -66,6 +68,7 @@ class Paypal extends \EMS\Pay\Model\Method\EmsAbstractMethod
         Session $session,
         Mapper $mapper,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \EMS\Pay\Model\Debugger $debugger,
         StoreManagerInterface $storeManager,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Framework\Model\Context $context,
@@ -87,6 +90,7 @@ class Paypal extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $session,
             $mapper,
             $timezone,
+            $debugger,
             $storeManager,
             $configFactory,
             $context,
