@@ -103,6 +103,7 @@ class Ipn
             $this->_order = null;
             $this->_initOrder();
             $this->response->validate($this->_order->getPayment()->getMethodInstance());
+            $this->response->validate($this->_order->getPayment()->getMethodInstance());
             $this->_processOrder();
         } catch (\Exception $ex) {
             $this->_debugData['exception'] = $this->_formatExceptionForBeingLogged($ex);

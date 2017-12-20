@@ -39,6 +39,10 @@ class Ipn extends EmsAbstract
      * @var \EMS\Pay\Model\IpnFactory
      */
     private $ipnFactory;
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
 
     /**
      * Constructor
@@ -48,13 +52,15 @@ class Ipn extends EmsAbstract
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
      * @param \EMS\Pay\Model\IpnFactory $ipnFactory
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \EMS\Pay\Model\IpnFactory $ipnFactory
+        \EMS\Pay\Model\IpnFactory $ipnFactory,
+        \Psr\Log\LoggerInterface $logger
     )
     {
         parent::__construct($context, $coreRegistry);
@@ -62,6 +68,7 @@ class Ipn extends EmsAbstract
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;
         $this->ipnFactory = $ipnFactory;
+        $this->logger = $logger;
     }
 
 
@@ -70,7 +77,7 @@ class Ipn extends EmsAbstract
      */
     public function execute()
     {
-        Debugger::debug($this->getRequest()->getParams(), Config::DEFAULT_LOG_FILE);
+        Debugger::debug($this->getRequest()->getPostValue(), Config::IPN_LOG_FILE);
         $resultRedirect = $this->resultRedirectFactory->create();
         $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 
@@ -79,13 +86,17 @@ class Ipn extends EmsAbstract
         }
         try {
             /** @var \EMS\Pay\Model\Ipn $ipn */
-            $data = $this->getRequest()->getParams();
+            $data = $this->getRequest()->getPostValue();
             $this->ipn = $this->ipnFactory->create();
             $this->ipn->processIpnRequest($data);
+        } catch (RemoteServiceUnavailableException $e) {
+            $this->logger->critical($e);
+            $this->getResponse()->setStatusHeader(503, '1.1', 'Service Unavailable')->sendResponse();
+            /** @todo eliminate usage of exit statement */
+            exit;
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage($e);
+            $this->logger->critical($e);
             $this->getResponse()->setHttpResponseCode(500);
         }
-        return;
     }
 }

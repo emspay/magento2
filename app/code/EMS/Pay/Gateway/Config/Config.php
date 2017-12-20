@@ -38,6 +38,8 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
 
     const DEFAULT_LOG_FILE = 'ems_payment';
 
+    const IPN_LOG_FILE = 'ems_ipn';
+
     /**
      * date format accepted by Zend_Date::toString()
      */

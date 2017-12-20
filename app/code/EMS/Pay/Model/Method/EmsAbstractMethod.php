@@ -306,15 +306,26 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $fields[Info::BCOUNTRY] = $billingAddress->getCountryId();
         $fields[Info::BZIP] = $billingAddress->getPostcode();
         $fields[Info::BPHONE] = $billingAddress->getTelephone();
+        if ($order->canShip()) {
+            $shippingAddress = $order->getShippingAddress();
+            $fields[Info::SNAME] = $shippingAddress->getName();
+            $fields[Info::SADDR1] = $shippingAddress->getStreetLine(1);
+            $fields[Info::SADDR2] = $shippingAddress->getStreetLine(2);
+            $fields[Info::SCITY] = $shippingAddress->getCity();
+            $fields[Info::SSTATE] = $shippingAddress->getRegion();
+            $fields[Info::SCOUNTRY] = $shippingAddress->getCountryId();
+            $fields[Info::SZIP] = $shippingAddress->getPostcode();
+        }
+        else {
+            $fields[Info::SNAME] = $billingAddress->getName();
+            $fields[Info::SADDR1] = $billingAddress->getStreetLine(1);
+            $fields[Info::SADDR2] = $billingAddress->getStreetLine(2);
+            $fields[Info::SCITY] = $billingAddress->getCity();
+            $fields[Info::SSTATE] = $billingAddress->getRegion();
+            $fields[Info::SCOUNTRY] = $billingAddress->getCountryId();
+            $fields[Info::SZIP] = $billingAddress->getPostcode();
+        }
 
-        $shippingAddress = $order->getShippingAddress();
-        $fields[Info::SNAME] = $shippingAddress->getName();
-        $fields[Info::SADDR1] = $shippingAddress->getStreetLine(1);
-        $fields[Info::SADDR2] = $shippingAddress->getStreetLine(2);
-        $fields[Info::SCITY] = $shippingAddress->getCity();
-        $fields[Info::SSTATE] = $shippingAddress->getRegion();
-        $fields[Info::SCOUNTRY] = $shippingAddress->getCountryId();
-        $fields[Info::SZIP] = $shippingAddress->getPostcode();
 
         return $fields;
     }
