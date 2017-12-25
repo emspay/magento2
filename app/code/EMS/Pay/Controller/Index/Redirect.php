@@ -36,11 +36,12 @@ class Redirect extends EmsAbstract
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->_coreRegistry = $coreRegistry;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($context, $coreRegistry);
+        parent::__construct($context, $coreRegistry, $orderSender);
         $this->context = $context;
     }
 

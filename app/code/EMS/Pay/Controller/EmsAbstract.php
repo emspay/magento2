@@ -20,6 +20,10 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
      * @var \Magento\Framework\Registry
      */
     protected $_coreRegistry = null;
+    /**
+     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     */
+    private $orderSender;
 
 
     /**
@@ -27,13 +31,16 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
      *
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
+     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry
+        \Magento\Framework\Registry $coreRegistry,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         parent::__construct($context);
         $this->_coreRegistry = $coreRegistry;
+        $this->orderSender = $orderSender;
     }
 
     /**
@@ -69,6 +76,7 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
             $order = $this->_objectManager->create('Magento\Sales\Model\Order')->loadByIncrementId($incrementId);
             if ($order->getId()) {
                 try {
+                    $this->orderSender->send($order);
                     /** @var \Magento\Quote\Api\CartRepositoryInterface $quoteRepository */
                     $quoteRepository = $this->_objectManager->create('Magento\Quote\Api\CartRepositoryInterface');
                     /** @var \Magento\Quote\Model\Quote $quote */

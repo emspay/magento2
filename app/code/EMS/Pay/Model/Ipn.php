@@ -66,7 +66,7 @@ class Ipn
      * @param ResponseFactory $responseFactory
      * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param InvoiceMailerFactory $invoiceMailerFactory
+//     * @param InvoiceMailerFactory $invoiceMailerFactory
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param Order\Invoice\Sender\EmailSender $emailSender
      */
@@ -75,7 +75,7 @@ class Ipn
         \EMS\Pay\Model\ResponseFactory $responseFactory,
         \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \EMS\Pay\Model\InvoiceMailerFactory $invoiceMailerFactory,
+//        \EMS\Pay\Model\InvoiceMailerFactory $invoiceMailerFactory,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Sales\Model\Order\Invoice\Sender\EmailSender $emailSender
     )
@@ -84,7 +84,7 @@ class Ipn
         $this->responseFactory = $responseFactory;
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
-        $this->invoiceMailerFactory = $invoiceMailerFactory;
+//        $this->invoiceMailerFactory = $invoiceMailerFactory;
         $this->configFactory = $configFactory;
         $this->emailSender = $emailSender;
     }
@@ -98,7 +98,7 @@ class Ipn
     {
         $this->_debugData[] = __('Processing IPN request');
         $this->_debugData['ipn_params'] = $requestParams;
-        $this->response = $this->responseFactory->create($requestParams);
+        $this->response = $this->responseFactory->create(['response' => $requestParams]);
         try {
             $this->_order = null;
             $this->_initOrder();
@@ -214,7 +214,6 @@ class Ipn
      */
     protected function _initOrder()
     {
-        $orderId =
         $this->_order = $this->orderRepository->get($this->response->getOrderId());
         if (!$this->_order->getId()) {
             $message = __("Order for id %s not found", $orderId);

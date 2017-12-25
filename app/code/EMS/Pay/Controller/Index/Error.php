@@ -36,17 +36,19 @@ class Error extends EmsAbstract
      *
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
+     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \EMS\Pay\Model\ResponseFactory $responseFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory
     )
     {
-        parent::__construct($context, $coreRegistry);
+        parent::__construct($context, $coreRegistry, $orderSender);
         $this->checkoutSession = $checkoutSession;
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;

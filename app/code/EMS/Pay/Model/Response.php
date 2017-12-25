@@ -57,6 +57,8 @@ class Response
 
     protected $_currency;
 
+    protected $_currencyFactory;
+
 
     public function __construct(
        CurrencyFactory $currencyFactory,

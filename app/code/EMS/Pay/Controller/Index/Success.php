@@ -44,11 +44,12 @@ class Success extends EmsAbstract
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Checkout\Model\Session $checkoutSession,
         \EMS\Pay\Model\ResponseFactory $responseFactory
     )
     {
-        parent::__construct($context, $coreRegistry);
+        parent::__construct($context, $coreRegistry, $orderSender);
         $this->checkoutSession = $checkoutSession;
         $this->_coreRegistry = $coreRegistry;
         $this->responseFactory = $responseFactory;
