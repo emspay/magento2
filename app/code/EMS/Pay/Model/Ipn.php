@@ -46,10 +46,7 @@ class Ipn
      * @var \Magento\Sales\Api\OrderRepositoryInterface
      */
     private $orderRepository;
-    /**
-     * @var InvoiceMailerFactory
-     */
-    private $invoiceMailerFactory;
+
     /**
      * @var \EMS\Pay\Gateway\Config\ConfigFactory
      */
@@ -58,35 +55,40 @@ class Ipn
      * @var Order\Invoice\Sender\EmailSender
      */
     private $emailSender;
+    /**
+     * @var Order\Email\Sender\OrderSender
+     */
+    private $orderSender;
 
 
     /**
      * Ipn constructor.
      * @param Config $config
      * @param ResponseFactory $responseFactory
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-//     * @param InvoiceMailerFactory $invoiceMailerFactory
+    //     * @param InvoiceMailerFactory $invoiceMailerFactory
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param Order\Invoice\Sender\EmailSender $emailSender
+     * @param Order\Email\Sender\OrderSender $orderSender
      */
     public function __construct(
         Config $config,
         \EMS\Pay\Model\ResponseFactory $responseFactory,
         \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-//        \EMS\Pay\Model\InvoiceMailerFactory $invoiceMailerFactory,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
-        \Magento\Sales\Model\Order\Invoice\Sender\EmailSender $emailSender
+        \Magento\Sales\Model\Order\Invoice\Sender\EmailSender $emailSender,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     )
     {
         $this->_config = $config;
         $this->responseFactory = $responseFactory;
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
-//        $this->invoiceMailerFactory = $invoiceMailerFactory;
         $this->configFactory = $configFactory;
         $this->emailSender = $emailSender;
+        $this->orderSender = $orderSender;
     }
     /**
      * Get ipn notification data, verify request, process order
@@ -102,7 +104,6 @@ class Ipn
         try {
             $this->_order = null;
             $this->_initOrder();
-            $this->response->validate($this->_order->getPayment()->getMethodInstance());
             $this->response->validate($this->_order->getPayment()->getMethodInstance());
             $this->_processOrder();
         } catch (\Exception $ex) {
@@ -159,8 +160,7 @@ class Ipn
             $skipFraudDetection
         );
         $this->orderRepository->save($this->_order);
-        $this->_order->queueNewOrderEmail()
-            ->setIsCustomerNotified(true);
+        $this->orderSender->send($this->_order, true);
         $this->orderRepository->save($this->_order);
 
         $ids = array();
@@ -168,12 +168,14 @@ class Ipn
         foreach($invoices as $invoice) {
             if ($invoice) {
                 $ids[] = $invoice->getIncrementId();
-                $this->emailSender->send($this->_order, $invoice);
+                $this->emailSender->send($this->_order, $invoice, null,true);
             }
         }
         $multi = count($ids)>1 ? 's' : '';
         $message = __('Notified customer about invoice'.$multi.': #%s.', implode(', ', $ids));
-        $this->_order->addStatusHistoryComment($message)->save();
+        $this->_order->addStatusHistoryComment($message)
+            ->setIsCustomerNotified(true)
+            ->save();
     }
     /**
      * Processes failed payment
@@ -216,7 +218,7 @@ class Ipn
     {
         $this->_order = $this->orderRepository->get($this->response->getOrderId());
         if (!$this->_order->getId()) {
-            $message = __("Order for id %s not found", $orderId);
+            $message = __("Order for id %s not found", $this->response->getOrderId());
             $this->_debugData['exception'] = $message;
             $this->_debug();
             throw new \Exception($message);
@@ -235,7 +237,7 @@ class Ipn
     protected function _createIpnComment($comment = '')
     {
         $status = $this->response->getTransactionStatus();
-        $message = __('IPN "%s", approval code "%s".', $status, $this->response->getApprovalCode());
+        $message = __('IPN '.$status .', approval code ' . $this->response->getApprovalCode());
         if ($this->response->getFailReason()) {
             $message .= ' ' . $this->response->getFailReason();
         }

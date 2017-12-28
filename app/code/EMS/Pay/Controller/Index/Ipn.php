@@ -87,7 +87,7 @@ class Ipn extends EmsAbstract
         }
         try {
             /** @var \EMS\Pay\Model\Ipn $ipn */
-            $data = $this->getRequest()->getParams();
+            $data = $this->getRequest()->getPostValue();
             $this->ipn = $this->ipnFactory->create();
             $this->ipn->processIpnRequest($data);
         } catch (RemoteServiceUnavailableException $e) {
