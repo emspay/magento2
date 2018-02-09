@@ -59,6 +59,10 @@ class Ipn
      * @var Order\Email\Sender\OrderSender
      */
     private $orderSender;
+    /**
+     * @var \Magento\Sales\Model\OrderFactory
+     */
+    private $orderFactory;
 
 
     /**
@@ -67,10 +71,10 @@ class Ipn
      * @param ResponseFactory $responseFactory
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-    //     * @param InvoiceMailerFactory $invoiceMailerFactory
      * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
      * @param Order\Invoice\Sender\EmailSender $emailSender
      * @param Order\Email\Sender\OrderSender $orderSender
+     * @param \Magento\Sales\Model\OrderFactory $orderFactory
      */
     public function __construct(
         Config $config,
@@ -79,7 +83,8 @@ class Ipn
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
         \Magento\Sales\Model\Order\Invoice\Sender\EmailSender $emailSender,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Sales\Model\OrderFactory $orderFactory
     )
     {
         $this->_config = $config;
@@ -89,6 +94,7 @@ class Ipn
         $this->configFactory = $configFactory;
         $this->emailSender = $emailSender;
         $this->orderSender = $orderSender;
+        $this->orderFactory = $orderFactory;
     }
     /**
      * Get ipn notification data, verify request, process order
@@ -216,7 +222,8 @@ class Ipn
      */
     protected function _initOrder()
     {
-        $this->_order = $this->orderRepository->get($this->response->getOrderId());
+//        $this->_order = $this->orderRepository->get($this->response->getOrderId());
+        $this->_order = $this->orderFactory->create()->loadByIncrementId($this->response->getOrderId());
         if (!$this->_order->getId()) {
             $message = __("Order for id %s not found", $this->response->getOrderId());
             $this->_debugData['exception'] = $message;
