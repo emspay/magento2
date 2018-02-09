@@ -222,7 +222,6 @@ class Ipn
      */
     protected function _initOrder()
     {
-//        $this->_order = $this->orderRepository->get($this->response->getOrderId());
         $this->_order = $this->orderFactory->create()->loadByIncrementId($this->response->getOrderId());
         if (!$this->_order->getId()) {
             $message = __("Order for id %s not found", $this->response->getOrderId());
