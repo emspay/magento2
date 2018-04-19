@@ -66,17 +66,19 @@ class Fail extends EmsAbstract
     public function execute()
     {
         Debugger::debug($this->getRequest()->getParams(), Config::DEFAULT_LOG_FILE);
+        $resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
 
         try {
             /** @var \EMS\Pay\Model\Response $response */
             $response = $this->responseFactory->create(['response' => $this->getRequest()->getParams()]);
+            $this->checkoutSession->setErrorMessage($response->getFailReason());
             $this->messageManager->addErrorMessage($response->getFailReason());
+            $this->_returnCustomerQuoteError(true, $response->getFailReason());
+            $resultRedirect->setPath('checkout', ['_secure' => true, '_fragment' => 'payment']);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
         }
-
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultRedirect->setPath('checkout/cart', ['_secure' => true]);
         return $resultRedirect;
 
     }

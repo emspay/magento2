@@ -83,6 +83,7 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                     $quote = $quoteRepository->get($order->getQuoteId());
 
                     $quote->setIsActive(0);
+                    $quote->addMessage($errorMsg);
                     $quoteRepository->save($quote);
                     $this->_getCheckout()
                         ->setLastSuccessQuoteId($quote->getId())

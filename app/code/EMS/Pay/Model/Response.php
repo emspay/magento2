@@ -64,8 +64,6 @@ class Response
        CurrencyFactory $currencyFactory,
        Hash $hash,
        array $response
-
-       
     )
     {
         $this->_currencyFactory = $currencyFactory;
