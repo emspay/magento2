@@ -72,10 +72,8 @@ class Fail extends EmsAbstract
         try {
             /** @var \EMS\Pay\Model\Response $response */
             $response = $this->responseFactory->create(['response' => $this->getRequest()->getParams()]);
-            $this->checkoutSession->setErrorMessage($response->getFailReason());
             $this->messageManager->addErrorMessage($response->getFailReason());
             $this->_returnCustomerQuoteError(true, $response->getFailReason());
-            $resultRedirect->setPath('checkout', ['_secure' => true, '_fragment' => 'payment']);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
         }

@@ -83,7 +83,6 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                     $quote = $quoteRepository->get($order->getQuoteId());
 
                     $quote->setIsActive(0);
-                    $quote->addMessage($errorMsg);
                     $quoteRepository->save($quote);
                     $this->_getCheckout()
                         ->setLastSuccessQuoteId($quote->getId())
@@ -115,7 +114,7 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                     $quoteRepository = $this->_objectManager->create('Magento\Quote\Api\CartRepositoryInterface');
                     /** @var \Magento\Quote\Model\Quote $quote */
                     $quote = $quoteRepository->get($order->getQuoteId());
-
+                    $quote->addErrorInfo('error',null, null,$errorMsg);
                     $quote->setIsActive(1)->setReservedOrderId(null);
                     $quoteRepository->save($quote);
                     $this->_getCheckout()->replaceQuote($quote);
@@ -125,7 +124,8 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                 $this->_getEmsPaySession()->removeCheckoutOrderIncrementId($incrementId);
                 $this->_getEmsPaySession()->unsetData('quote_id');
                 if ($cancelOrder) {
-                    $order->cancel($errorMsg)->save();
+                    $order->cancel($errorMsg);
+                    $order->save();
                 }
             }
         }
