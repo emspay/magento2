@@ -12,7 +12,7 @@ namespace EMS\Pay\Helper;
 use Magento\Quote\Model\Quote;
 use Magento\TestFramework\Event\Magento;
 
-class Checkout extends AbstractHelper
+class Checkout extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
      * @var \Magento\Sales\Model\Order

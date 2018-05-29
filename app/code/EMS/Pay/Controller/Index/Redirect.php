@@ -27,20 +27,28 @@ class Redirect extends EmsAbstract
     private $context;
 
     /**
-     * Constructor
-     *
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
+    protected $resultJsonFactory;
+
+    /**
+     * Redirect constructor.
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
+     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
     ) {
         $this->_coreRegistry = $coreRegistry;
         $this->checkoutSession = $checkoutSession;
+        $this->resultJsonFactory = $resultJsonFactory;
         parent::__construct($context, $coreRegistry, $orderSender);
         $this->context = $context;
     }
@@ -69,13 +77,17 @@ class Redirect extends EmsAbstract
         $method = $payment->getMethodInstance();
         $emsRedirectUrl = $method->getGatewayUrl();
         $requestArguments = $method->generateRequestFromOrder($order);
-        $this->_coreRegistry->register('emsRedirectUrl', $emsRedirectUrl);
-        $this->_coreRegistry->register('requestArguments', $requestArguments);
+        //$this->_coreRegistry->register('emsRedirectUrl', $emsRedirectUrl);
+        //$this->_coreRegistry->register('requestArguments', $requestArguments);
+        $joineJsonArray['action'] = $emsRedirectUrl;
+        $joineJsonArray['fields'] = $requestArguments; 
         try {
-            $this->_view->addPageLayoutHandles();
-            $this->_view->loadLayout(false)->renderLayout();
+            //$this->_view->addPageLayoutHandles();
+            //$this->_view->loadLayout(false)->renderLayout();
             $this->_getCheckout()->clearQuote();
             $this->_getCheckout()->clearHelperData();
+            return $this->resultJsonFactory->create()->setData($joineJsonArray);
+            
         } catch (\Exception $ex) {
             $this->messageManager->addErrorMessage($ex->getMessage());
             $this->messageManager->addErrorMessage(__('There was an error processing your order. Please contact us or try again later.'));
