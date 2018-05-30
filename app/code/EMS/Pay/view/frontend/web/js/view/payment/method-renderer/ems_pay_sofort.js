@@ -5,10 +5,13 @@ define(
         'Magento_Checkout/js/model/quote',
         'mage/url',
         'Magento_Checkout/js/action/place-order',
-        'jquery'
+        'jquery',
+        'EMS_Pay/js/view/payment/method-renderer/form-builder',
+        'Magento_Checkout/js/model/error-processor',
+        'Magento_Checkout/js/model/full-screen-loader'
 
     ],
-    function (Component, customer, quote, url, placeOrderAction, $) {
+    function (Component, customer, quote, url, placeOrderAction, $,formBuilder,errorProcessor,fullScreenLoader) {
         'use strict';
 
         return Component.extend({
@@ -64,8 +67,18 @@ define(
                 return window.checkoutConfig.payment[this.getCode()].isActive;
             },
 
-            afterPlaceOrder: function (data, event) {
-                window.location.replace(url.build(this.getRedirectUrl()));
+            afterPlaceOrder: function (/*data, event*/) {
+                // window.location.replace(url.build(this.getRedirectUrl()));
+                var self = this;
+                $.get(url.build(this.getRedirectUrl()))
+                    .done(function (response) {
+                        customer.invalidate(['cart']);
+                        formBuilder.build(response).submit();
+                    }).fail(function (response) {
+                    errorProcessor.process(response, self.messageContainer);
+                }).always(function () {
+                    fullScreenLoader.stopLoader();
+                });
 
             }
 
