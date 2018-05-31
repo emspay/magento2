@@ -86,6 +86,7 @@ class ConfigProvider  implements ConfigProviderInterface
                     'isBankSelectionEnabled' => $this->config->isIdealIssuingBankSelectionEnabled(),
                     'issuingBank' => 'issuing_bank',
                     'availableBanks' => $this->config->getIdealEnabledIssuingBanks(),
+                    //'availableCustomerId' => $this->config->
                 ],
                 Config::METHOD_BANCONTACT => [
                     'isActive' => $this->config->isActive(Config::METHOD_BANCONTACT),

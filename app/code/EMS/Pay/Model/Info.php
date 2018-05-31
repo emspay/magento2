@@ -80,6 +80,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
     const IBAN = 'iban';
 
     const IDEAL_ISSUER_ID = 'idealIssuerID';
+    const IDEAL_CUSTOMER_ID = 'idealCustomerID';
 
     const BANCONTACT_ISSUER_ID = 'bancontactIssuer';
 

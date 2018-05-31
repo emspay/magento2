@@ -18,11 +18,13 @@ define(
             defaults: {
                 template: 'EMS_Pay/payment/ems_pay_ideal',
                 selectedBank: '',
+                customerId: '',
                 redirectAfterPlaceOrder: false
             },
             initObservable: function () {
                 this._super()
-                    .observe('selectedBank');
+                    .observe('selectedBank')
+                    .observe('customerId');
                 return this;
             },
 
@@ -81,6 +83,7 @@ define(
                 if (this.getIssuingBank()) {
                     additionalData = {};
                     additionalData[this.getIssuingBank()] = this.selectedBank();
+                    additionalData['customer_id'] = this.customerId();
                 }
                 return {'method': this.getCode(), 'additional_data': additionalData};
             },

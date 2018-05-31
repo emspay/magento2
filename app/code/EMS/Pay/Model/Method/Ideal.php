@@ -21,6 +21,7 @@ use \Magento\Checkout\Model\Session;
 class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
 {
     const ISSUING_BANK_FIELD_NAME = 'issuing_bank';
+    const ISSUING_CUSTOMER_ID_FIELD_NAME = 'customer_id';
 
     protected $_code = Config::METHOD_IDEAL;
 
@@ -123,6 +124,7 @@ class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
     {
         $fields = [];
         $fields[Info::IDEAL_ISSUER_ID] = $this->_getIssuingBankCode();
+        $fields[Info::IDEAL_CUSTOMER_ID] = $this->_getCustomerid();
         return $fields;
     }
 
@@ -135,6 +137,14 @@ class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
     }
 
     /**
+     * @return string|null
+     */
+    protected function _getCustomerid()
+    {
+        return $this->getInfoInstance()->getAdditionalInformation(self::ISSUING_CUSTOMER_ID_FIELD_NAME);
+    }
+
+    /**
      * @inheritdoc
      */
     public function assignData(\Magento\Framework\DataObject $data)
@@ -142,8 +152,14 @@ class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
         parent::assignData($data);
         $info = $this->getInfoInstance();
         $issuingBank = $data->getAdditionalData(self::ISSUING_BANK_FIELD_NAME);
+        $customerid = $data->getAdditionalData(self::ISSUING_CUSTOMER_ID_FIELD_NAME);
+
         if (isset($issuingBank)) {
             $info->setAdditionalInformation(self::ISSUING_BANK_FIELD_NAME, $issuingBank);
+        }
+
+        if (isset($customerid)) {
+            $info->setAdditionalInformation(self::ISSUING_CUSTOMER_ID_FIELD_NAME, $customerid);
         }
         return $this;
     }
