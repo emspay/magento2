@@ -33,6 +33,16 @@
                                     ">
             </select>
         </div>
+        <div>
+        <!-- ko if: (getAvailableCustomerId()) -->
+
+            <span><!-- ko i18n: 'Please set customer Id '--><!-- /ko --></span>
+            <input type="text"
+                   name="customerId"
+                   class="input-text"
+                   data-bind="value: customerId"/>
+        <!-- /ko -->
+        </div>
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -59,4 +69,4 @@
             </div>
         </div>
     </div>
-</div>       
+</div>
