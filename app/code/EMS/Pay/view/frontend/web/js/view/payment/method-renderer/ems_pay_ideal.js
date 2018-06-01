@@ -42,6 +42,11 @@ define(
                 return window.checkoutConfig.payment[this.getCode()].availableBanks;
             },
 
+            getAvailableCustomerId: function () {
+                return window.checkoutConfig.payment[this.getCode()].availableCustomerId;
+            },
+
+
             getLogoFileNames: function () {
                 return window.checkoutConfig.emsPayGeneral.logoFileNames;
             },
