@@ -87,7 +87,7 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                     $this->_getCheckout()
                         ->setLastSuccessQuoteId($quote->getId())
                         ->setLastQuoteId($quote->getId())
-                        ->setLastOrderId($order->getIncrementId())
+                        ->setLastOrderId($order->getId())
                         ->setLastRealOrderId($order->getIncrementId());
                     $this->_getCheckout()->replaceQuote($quote);
                 } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
