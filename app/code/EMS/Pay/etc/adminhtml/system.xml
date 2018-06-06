@@ -1,0 +1,576 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <!--<group id="ems_pay_section" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">-->
+            <!--<label>EMS Pay</label>-->
+            <group id="ems_pay_general" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>EMS Global configuration</label>
+                <field id="operation_mode" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Operation mode</label>
+                    <source_model>EMS\Pay\Model\Source\OperationMode</source_model>
+                </field>
+                <field id="store_name_test" translate="label" type="text" sortOrder="31" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Store name</label>
+                    <comment>This is the ID of the store that was given to you by EMS</comment>
+                    <depends>
+                        <field id="operation_mode">test</field>
+                    </depends>
+                </field>
+                <field id="shared_secret_test" translate="label" type="obscure" sortOrder="32" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Operation mode</label>
+                    <comment>This is the shared secret provided to you by EMS.</comment>
+                    <depends>
+                        <field id="operation_mode">test</field>
+                    </depends>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="store_name_production" translate="label" type="text" sortOrder="33" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Store name</label>
+                    <comment>This is the ID of the store that was given to you by EMS</comment>
+                    <depends>
+                        <field id="operation_mode">production</field>
+                    </depends>
+                </field>
+                <field id="shared_secret_production" translate="label" type="obscure" sortOrder="34" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Operation mode</label>
+                    <comment>This is the shared secret provided to you by EMS.</comment>
+                    <depends>
+                        <field id="operation_mode">production</field>
+                    </depends>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="checkout_option" translate="label" type="select" sortOrder="35" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Checkout option</label>
+                    <source_model>EMS\Pay\Model\Source\CheckoutOption</source_model>
+                </field>
+                <field id="log_enabled" translate="label" type="select" sortOrder="36" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Logging</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enables/disables logging</comment>
+                </field>
+            </group>
+            <group id="ems_pay_cc" translate="label" type="text" sortOrder="36" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Credit card</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="cctypes" translate="label" type="multiselect" sortOrder="50" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Credit Card Types</label>
+                    <source_model>EMS\Pay\Model\Source\CcType</source_model>
+                </field>
+                <field id="enable_3dsecure" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Enable 3D Secure</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If your credit card agreement includes 3D Secure and your Merchant ID has been activated to
+                        use this service.
+                    </comment>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_klarna" translate="label" type="text" sortOrder="37" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Klarna</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Klarna\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>EMS\Pay\Model\Source\Klarna\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_paypal" translate="label" type="text" sortOrder="38" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Paypal</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_sofort" translate="label" type="text" sortOrder="38" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Sofort</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_masterpass" translate="label" type="text" sortOrder="39" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Masterpass</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_maestro" translate="label" type="text" sortOrder="40" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Maestro</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_ideal" translate="label" type="text" sortOrder="41" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS iDEAL</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="bank_selection_enabled" translate="label" type="select" sortOrder="45" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Enable issuer bank selection</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="customerid_selection_enabled" translate="label" type="select" sortOrder="50" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Enable iDeal Customer Id selection</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Ideal\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <group id="ems_pay_bancontact" translate="label" type="text" sortOrder="42" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>EMS Bancontact</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Title</label>
+                </field>
+                <field id="order_status" translate="label" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Data capture mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
+                    <depends>
+                        <field id="checkout_option">classic</field>
+                    </depends>
+                </field>
+                <field id="bank_selection_enabled" translate="label" type="select" sortOrder="45" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Enable issuer bank selection</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Allowed Currencies</label>
+                    <source_model>EMS\Pay\Model\Source\Bancontact\Currency</source_model>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="80" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                    <attribute type="shared">1</attribute>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="90" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Countries Payment Applicable From</label>
+                    <source_model>EMS\Pay\Model\Source\Bancontact\Country</source_model>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                    <attribute type="shared">1</attribute>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Minimum Order Total</label>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="110" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Maximum Order Total</label>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+            <!--</group>-->
+        </section>
+    </system>
+</config>

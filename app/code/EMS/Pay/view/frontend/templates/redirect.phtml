@@ -1,0 +1,13 @@
+<?php
+ /** @var \EMS\Pay\Block\Redirect $this */
+?>
+<form action="<?php echo $this->getFormAction(); ?>" method="post" id="ems_checkout_redirect">
+    <div class="page-title">
+        <h1><?php echo __('You will be redirected to payment gateway in a few seconds.');?></h1>
+    </div>
+    <?php foreach ($this->getFormFields() as $_name => $_value): ?>
+        <input type="hidden" name="<?php echo $_name;?>" value="<?php echo $_value; ?>" />
+    <?php endforeach; ?>
+    <button type="submit" ><?php echo __('Click here if you are not redirected within 10 seconds...'); ?></button>
+    <script type="text/javascript">document.getElementById("ems_checkout_redirect").submit();</script>
+</form>
