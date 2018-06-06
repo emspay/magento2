@@ -53,11 +53,15 @@ https://www.emspay.eu/en/about-ems/contact
     ##### 2. Copy/upload the module files into your site's root directory
         
     ##### 3. To enable the extension run commands: 
+    ```
     php bin/magento module:enable EMS_Pay
     php bin/magento setup:upgrade
+    ```
         
     ##### 4. Clean the cache
+    ```
     php bin/magento cache:clean
+    ```
         
 ## Configuration
 
