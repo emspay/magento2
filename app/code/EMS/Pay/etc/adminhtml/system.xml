@@ -465,11 +465,6 @@
                     <label>Enable issuer bank selection</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="customerid_selection_enabled" translate="label" type="select" sortOrder="50" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Enable iDeal Customer Id selection</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Allowed Currencies</label>

@@ -124,7 +124,7 @@ class Ideal extends \EMS\Pay\Model\Method\EmsAbstractMethod
     {
         $fields = [];
         $fields[Info::IDEAL_ISSUER_ID] = $this->_getIssuingBankCode();
-        $fields[Info::IDEAL_CUSTOMER_ID] = $this->_getCustomerid();
+        $fields[Info::IDEAL_CUSTOMER_ID] = $this->_getOrderId();
         return $fields;
     }
 
