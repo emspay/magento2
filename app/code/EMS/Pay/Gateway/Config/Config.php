@@ -147,6 +147,8 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         'SNSBNL2A' => 'SNS Bank',
         'TRIONL2U' => 'Triodos Bank',
         'FVLBNL22' => 'van Lanschot',
+        'HANDNL2A' => 'Handelsbanken',
+        'MOYONL21' => 'Moneyou',
     ];
 
     /**
