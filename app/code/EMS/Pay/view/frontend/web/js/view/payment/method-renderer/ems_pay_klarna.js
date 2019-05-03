@@ -20,7 +20,6 @@ define(
                 redirectAfterPlaceOrder: false
             },
             initObservable: function () {
-
                 this._super()
                 return this;
             },
