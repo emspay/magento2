@@ -21,14 +21,14 @@ If you are already registered as an EMS merchant then please enter the credentia
 For new customers please follow the link below to acquire an EMS merchant account.
 
 ### Becoming an EMS customer
-Get a merchant account by sending an email with your request to integrations@emspay.eu
+Get a merchant account by sending an email with your request to sales@emspay.eu
 
 ### Contact EMS Support
 Visit the FAQ:
-http://www.emspay.eu/en/customer-service/faq
+https://emspay.eu/get-in-touch
 
 Contact information:
-https://www.emspay.eu/en/about-ems/contact
+https://emspay.eu/contact
 
 ## Features
 * Support for all available EMS payment methods
