@@ -1,9 +1,9 @@
 === EMS payments for Magento 2 ===
 Contributors: emspay
 Donate link: https://developer.emspay.eu
-Tags: ems, emspay, payments, woocommerce, e-commerce, webshop, psp, ideal, sofort, credit card, creditcard, visa, mastercard, masterpass, bancontact, bitcoin, paysafecard, direct debit, incasso, sepa, banktransfer, overboeking, betalingen, klarna
-Requires at least: 4.4
-Tested up to: 4.7.2
+Tags: ems, emspay, payments, magento, e-commerce, webshop, psp, ideal, sofort, credit card, creditcard, visa, mastercard, masterpass, bancontact, bitcoin, paysafecard, direct debit, incasso, sepa, banktransfer, overboeking, betalingen, klarna
+Requires at least: 2.1
+Tested up to: 2.2.6
 Stable tag: 1.0.25
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -63,14 +63,5 @@ Automatic updates should work flawlessly; as always though, ensure you backup yo
 
 = 1.0.0 =
 * Initial release
-= 1.1.8 =
-* version 1.1.8 test releas
- 
-= 1.0.23 =
-* test version tag magento 2
- 
-= 1.0.24 =
-* test realeas 24
- 
-= 1.0.25 =
-* test deploy 25
+= 1.0.1 =
+* added new banks ideal handelsbanken and moneyou
