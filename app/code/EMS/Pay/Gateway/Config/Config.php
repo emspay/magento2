@@ -12,7 +12,11 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class Config extends \Magento\Payment\Gateway\Config\Config #implements \Magento\Payment\Gateway\ConfigInterface
 {
+    /**
+     *  path to config general settings
+     */
     const CONFIG_GENERAL = 'ems_pay_general';
+
     const MODE_TEST = 'test';
     const MODE_PRODUCTION = 'production';
 
