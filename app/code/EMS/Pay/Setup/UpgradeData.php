@@ -6,6 +6,8 @@ use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\App\Config\ConfigResource\ConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\Store;
 use EMS\Pay\Gateway\Config\Config;
 
 /**
@@ -63,11 +65,10 @@ class UpgradeData implements UpgradeDataInterface
                 $this->_resourceConfig->saveConfig(
                     $configPath,
                     Config::DATA_TRANSFER_FULLPAY,
-                    \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-                    \Magento\Store\Model\Store::DEFAULT_STORE_ID
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    Store::DEFAULT_STORE_ID
                 );
             }
-
         }
 
         $setup->endSetup();
