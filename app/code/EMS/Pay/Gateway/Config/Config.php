@@ -10,7 +10,7 @@ use Magento\Framework\Locale\ResolverInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class Config extends \Magento\Payment\Gateway\Config\Config #implements \Magento\Payment\Gateway\ConfigInterface
+class Config extends \Magento\Payment\Gateway\Config\Config
 {
     /**
      *  path to config general settings
@@ -30,10 +30,10 @@ class Config extends \Magento\Payment\Gateway\Config\Config #implements \Magento
     /**
      *  Challenge indicator options
      */
-    const CHALLENGE_INDICATOR_1 = '1';
-    const CHALLENGE_INDICATOR_2 = '2';
-    const CHALLENGE_INDICATOR_3 = '3';
-    const CHALLENGE_INDICATOR_4 = '4';
+    const CHALLENGE_INDICATOR_1 = 1;
+    const CHALLENGE_INDICATOR_2 = 2;
+    const CHALLENGE_INDICATOR_3 = 3;
+    const CHALLENGE_INDICATOR_4 = 4;
 
     const METHOD_CC = 'ems_pay_cc';
     const METHOD_MASTER_CARD = 'ems_pay_mastercard';
@@ -364,11 +364,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config #implements \Magento
      */
     public function getDataCaptureMode()
     {
-        if ($this->getCheckoutOption() == self::CHECKOUT_OPTION_COMBINEDPAGE) {
-            //combinedpage doesn't support other data capture modes
-            return self::DATA_TRANSFER_PAYONLY;
-        }
-
         return $this->getConfigData(self::CONFIG_FIELD_DATA_CAPTURE_MODE);
     }
 

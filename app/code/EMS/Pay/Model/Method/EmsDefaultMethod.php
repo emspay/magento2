@@ -8,8 +8,6 @@
 
 namespace EMS\Pay\Model\Method;
 
-use EMS\Pay\Model\Method\EmsAbstractMethod;
-use EMS\Pay\Model\Method\Mapper;
 use EMS\Pay\Model\Currency;
 use EMS\Pay\Model\HashFactory;
 use EMS\Pay\Gateway\Config\Config;

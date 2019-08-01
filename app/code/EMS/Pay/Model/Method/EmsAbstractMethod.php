@@ -278,7 +278,6 @@ abstract class EmsAbstractMethod extends AbstractMethod
                 \EMS\Pay\Model\Info::LANGUAGE => $this->_getLanguage(),
                 \EMS\Pay\Model\Info::BEMAIL => $this->_order->getCustomerEmail(),
                 \EMS\Pay\Model\Info::MOBILE_MODE => $this->_getMobileMode(),
-                \EMS\Pay\Model\Info::CHALLENGE_INDICATOR => $this->_getChallengeIndicator(),
             ];
 
             $fields = array_merge($fields, $this->_getAddressRequestFields());
@@ -608,14 +607,6 @@ abstract class EmsAbstractMethod extends AbstractMethod
     protected function _getMobileMode()
     {
         return $this->_config->isMobileMode() ? 'true' : 'false';
-    }
-
-    /**
-     * @return string
-     */
-    protected function _getChallengeIndicator()
-    {
-        return $this->_config->getChallengeIndicator();
     }
 
     /**
