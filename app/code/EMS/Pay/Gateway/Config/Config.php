@@ -4,11 +4,19 @@ namespace EMS\Pay\Gateway\Config;
 
 use EMS\Pay\Model\Currency;
 use EMS\Pay\Model\MobileDetect;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\Locale\ResolverInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
-class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magento\Payment\Gateway\ConfigInterface #extends \Magento\Payment\Gateway\Config\Config
+class Config extends \Magento\Payment\Gateway\Config\Config
 {
+    /**
+     *  path to config general settings
+     */
+    const CONFIG_GENERAL = 'ems_pay_general';
+
     const MODE_TEST = 'test';
     const MODE_PRODUCTION = 'production';
 
@@ -18,6 +26,14 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
 
     const CHECKOUT_OPTION_CLASSIC = 'classic';
     const CHECKOUT_OPTION_COMBINEDPAGE = 'combinedpage';
+
+    /**
+     *  Challenge indicator options
+     */
+    const CHALLENGE_INDICATOR_1 = 1;
+    const CHALLENGE_INDICATOR_2 = 2;
+    const CHALLENGE_INDICATOR_3 = 3;
+    const CHALLENGE_INDICATOR_4 = 4;
 
     const METHOD_CC = 'ems_pay_cc';
     const METHOD_MASTER_CARD = 'ems_pay_mastercard';
@@ -58,6 +74,7 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     const XML_CONFIG_STORE_NAME_PRODUCTION = 'payment/ems_pay_general/store_name_production';
     const XML_CONFIG_SHARED_SECRET_TEST = 'payment/ems_pay_general/shared_secret_test';
     const XML_CONFIG_SHARED_SECRET_PRODUCTION = 'payment/ems_pay_general/shared_secret_production';
+    const XML_CONFIG_CHALLENGE_INDICATOR = 'payment/ems_pay_general/challenge_indicator';
     const XML_CONFIG_LOGGING_ENABLED = 'payment/ems_pay_general/log_enabled';
     const XML_CONFIG_IDEAL_BANK_SELECTION = 'payment/ems_pay_ideal/bank_selection_enabled';
     const XML_CONFIG_IDEAL_CUSTOMER_ID_SELECTION = 'payment/ems_pay_ideal/customerid_selection_enabled';
@@ -81,16 +98,30 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      */
     protected $_storeId = null;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
     protected $_storeManager;
 
+    /**
+     * @var ScopeConfigInterface
+     */
     protected $_scopeConfig;
 
+    /**
+     * @var Currency
+     */
     protected $_currency;
-    
+
+    /**
+     * @var MobileDetect
+     */
     protected $_detect;
 
+    /**
+     * @var
+     */
     protected $_config;
-
 
     /**
      * List of CC-based payment methods
@@ -245,10 +276,12 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         self::METHOD_SOFORT => 'sofort.png',
         self::METHOD_BANCONTACT => 'bancontact.png',
     ];
+
     /**
      * @var \Magento\Framework\View\Asset\Repository
      */
     private $assetRepo;
+
     /**
      * @var \Magento\Framework\Locale\ResolverInterface
      */
@@ -266,19 +299,15 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      * \Magento\Store\Model\StoreManagerInterface storeManager
      */
     public function __construct(
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-//        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
+        StoreManagerInterface $storeManager,
+        ScopeConfigInterface $scopeConfig,
         Currency $currency,
         MobileDetect $detect,
-        \Magento\Framework\View\Asset\Repository $assetRepo,
-        \Magento\Framework\Locale\ResolverInterface $localeResolver,
+        Repository $assetRepo,
+        ResolverInterface $localeResolver,
         array $params = []
-
         )
     {
-
-
         $this->_storeManager = $storeManager;
         $this->_scopeConfig = $scopeConfig;
         $this->_currency = $currency;
@@ -335,11 +364,6 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
      */
     public function getDataCaptureMode()
     {
-        if ($this->getCheckoutOption() == self::CHECKOUT_OPTION_COMBINEDPAGE) {
-            //combinedpage doesn't support other data capture modes
-            return self::DATA_TRANSFER_PAYONLY;
-        }
-
         return $this->getConfigData(self::CONFIG_FIELD_DATA_CAPTURE_MODE);
     }
 
@@ -631,6 +655,15 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
     }
 
     /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getChallengeIndicator($storeId = null)
+    {
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_CHALLENGE_INDICATOR, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
      * Returns current locale or the default one if current is not supported by EMS
      *
      * @return string
@@ -676,7 +709,6 @@ class Config extends  \Magento\Payment\Gateway\Config\Config #implements \Magent
         $path = 'payment/' . $this->_methodCode . '/' . $field;
         return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $this->_storeId);
     }
-
 
     /**
      * @param string|\Magento\Payment\Model\MethodInterface $method

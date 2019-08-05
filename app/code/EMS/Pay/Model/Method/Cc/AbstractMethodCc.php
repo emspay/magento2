@@ -131,7 +131,7 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
     protected function _getMethodSpecificRequestFields()
     {
         $fields = parent::_getMethodSpecificRequestFields();
-        $fields[Info::AUTHENTICATE_TRANSACTION] = $this->_is3DSecureEnabled() ? 'true' : 'false';
+        $fields[Info::CHALLENGE_INDICATOR] = $this->_getChallengeIndicator();
         return $fields;
     }
     /**
@@ -164,6 +164,14 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $info->setCcType($this->_mapper->getHumanReadableByMagentoCode($cardType));
         }
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    protected function _getChallengeIndicator()
+    {
+        return $this->_config->getChallengeIndicator();
     }
     /**
      * @inheritdoc

@@ -8,21 +8,26 @@ use EMS\Pay\Model\Hash;
 use EMS\Pay\Model\Response;
 use EMS\Pay\Model\Info;
 use EMS\Pay\Model\Debugger;
-use \Magento\Checkout\Model\Session;
-use \Magento\Store\Model\StoreManagerInterface;
-use \Magento\Sales\Model\Order;
+use Magento\Checkout\Model\Session;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Sales\Model\Order;
+use Magento\Payment\Model\Method\AbstractMethod;
 
-
-
-abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
+abstract class EmsAbstractMethod extends AbstractMethod
 {
-
     /**
      * Default precision
      */
     const DEFAULT_PRECISION = 2;
 
+    /**
+     * @var string
+     */
     protected $_infoBlockType = 'EMS\Pay\Block\Payment\Info';
+
+    /**
+     * @var string
+     */
     protected $_formBlockType = 'ems_pay/payment_form_form';
 
     /**
@@ -66,8 +71,14 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected $_storeManager;
 
+    /**
+     * @var \Magento\Store\Api\Data\StoreInterface
+     */
     protected $_store;
 
+    /**
+     * @var \EMS\Pay\Gateway\Config\ConfigFactory
+     */
     protected $_configFactory;
 
     /**
@@ -86,10 +97,6 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @property Order _order
      */
     protected $_order = null;
-
-
-
-
 
     /**
      * Depending on magento tax configuration discount may be applied on row total price.
@@ -111,16 +118,20 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected $_itemFieldsIndex = 1;
 
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
     protected $_scopeConfig;
+
     /**
      * @var \Magento\Payment\Helper\Data
      */
     private $paymentData;
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
-
 
     /**
      * @param Currency $currency
@@ -161,7 +172,6 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-
     )
     {
         parent::__construct(
@@ -325,7 +335,6 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
             $fields[Info::SCOUNTRY] = $billingAddress->getCountryId();
             $fields[Info::SZIP] = $billingAddress->getPostcode();
         }
-
 
         return $fields;
     }
@@ -801,7 +810,5 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->hash->setConfig($this->_config);
 
         return $this->hash;
-
     }
-
 }

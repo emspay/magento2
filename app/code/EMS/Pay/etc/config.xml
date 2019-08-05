@@ -2,14 +2,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <!--<ems_pay_general>-->
-                <!--<model>EMS\Pay\Model\Method\EmsAbstractMethod</model>-->
-                <!--<title>EMS Global Configuration</title>-->
-                <!--<operation_mode>test</operation_mode>-->
-                <!--<log_enabled>1</log_enabled>-->
-                <!--<checkout_option>classic</checkout_option>-->
-               <!---->
-            <!--</ems_pay_general>-->
+            <ems_pay_general>
+                <model>EMS\Pay\Model\Method\EmsDefaultMethod</model>
+                <challenge_indicator>EMS\Pay\Gateway\Config\Config::CHALLENGE_INDICATOR_1</challenge_indicator>
+                <checkout_option>EMS\Pay\Gateway\Config\Config::CHECKOUT_OPTION_CLASSIC</checkout_option>
+                <data_capture_mode>EMS\Pay\Gateway\Config\Config::DATA_TRANSFER_FULLPAY</data_capture_mode>
+            </ems_pay_general>
             <ems_pay_cc>
                 <model>EMS\Pay\Model\Method\Cc</model>
                 <active>0</active>
