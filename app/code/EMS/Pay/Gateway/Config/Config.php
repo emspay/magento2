@@ -27,6 +27,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const CHECKOUT_OPTION_CLASSIC = 'classic';
     const CHECKOUT_OPTION_COMBINEDPAGE = 'combinedpage';
 
+    const AUTHENTICATE_TRANSACTION_VALUE = true;
+
     /**
      *  Challenge indicator options
      */
@@ -65,11 +67,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const GATEWAY_URL_TEST = 'https://test.ipg-online.com/connect/gateway/processing';
     const GATEWAY_URL_PRODUCTION = 'https://www.ipg-online.com/connect/gateway/processing';
 
-    const CONFIG_FIELD_DATA_CAPTURE_MODE = 'data_capture_mode';
     const CONFIG_FIELD_DATA_SPECIFIC_CURRENCY = 'specific_currency';
 
     const XML_CONFIG_OPERATION_MODE = 'payment/ems_pay_general/operation_mode';
     const XML_CONFIG_CHECKOUT_OPTION = 'payment/ems_pay_general/checkout_option';
+    const XML_CONFIG_DATA_CAPTURE_MODE = 'payment/ems_pay_general/data_capture_mode';
     const XML_CONFIG_STORE_NAME_TEST = 'payment/ems_pay_general/store_name_test';
     const XML_CONFIG_STORE_NAME_PRODUCTION = 'payment/ems_pay_general/store_name_production';
     const XML_CONFIG_SHARED_SECRET_TEST = 'payment/ems_pay_general/shared_secret_test';
@@ -360,11 +362,12 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
+     * @param int $storeId
      * @return string
      */
-    public function getDataCaptureMode()
+    public function getDataCaptureMode($storeId = null)
     {
-        return $this->getConfigData(self::CONFIG_FIELD_DATA_CAPTURE_MODE);
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_DATA_CAPTURE_MODE, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -374,6 +377,14 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getCheckoutOption($storeId = null)
     {
         return $this->_scopeConfig->getValue(self::XML_CONFIG_CHECKOUT_OPTION, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getAuthenticateTransaction()
+    {
+        return self::AUTHENTICATE_TRANSACTION_VALUE;
     }
 
     /**

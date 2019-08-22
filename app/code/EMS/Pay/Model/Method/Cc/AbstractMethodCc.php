@@ -126,15 +126,6 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
         return $this->_getMethodCodeMapper()->getEmsCodeByMagentoCode($this->_getCardType());
     }
     /**
-     * @inheritdoc
-     */
-    protected function _getMethodSpecificRequestFields()
-    {
-        $fields = parent::_getMethodSpecificRequestFields();
-        $fields[Info::CHALLENGE_INDICATOR] = $this->_getChallengeIndicator();
-        return $fields;
-    }
-    /**
      * Returns card type used for payment
      *
      * @return string|null
