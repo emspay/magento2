@@ -2,7 +2,7 @@
   "name": "emspay/magento2",
   "description": "Accept payments in Magento 2 with the official EMS e-Commerce gateway plugin",
   "type": "magento2-module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": [
     "BSD-2-Clause"
   ],
