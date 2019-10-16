@@ -8,9 +8,9 @@
 
 namespace EMS\Pay\Model;
 
+use Magento\Payment\Model\InfoInterface;
 
-
-class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model\InfoInterface
+class Info extends \Magento\Payment\Model\Info implements InfoInterface
 {
     const TXNTYPE = 'txntype';
     const TIMEZONE = 'timezone';
@@ -34,6 +34,7 @@ class Info extends \Magento\Payment\Model\Info implements \Magento\Payment\Model
     const RESPONSE_FAIL_URL = 'responseFailURL';
     const RESPONSE_SUCCESS_URL = 'responseSuccessURL';
     const TRANSACTION_NOTIFICATION_URL = 'transactionNotificationURL';
+    const CHALLENGE_INDICATOR = 'threeDSRequestorChallengeIndicator';
 
     const APPROVAL_CODE = 'approval_code';
     const REFNUMBER = 'refnumber';
