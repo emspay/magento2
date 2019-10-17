@@ -219,7 +219,7 @@ abstract class EmsAbstractMethod extends AbstractMethod
      */
     public function initialize($paymentAction, $stateObject)
     {
-        $state = Order::STATE_PENDING_PAYMENT;
+        $state = Order::STATE_NEW;
         $stateObject->setState($state);
         $stateObject->setStatus('pending_payment');
         $stateObject->setIsNotified(false);

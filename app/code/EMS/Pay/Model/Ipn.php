@@ -165,9 +165,7 @@ class Ipn
             $response->getChargeTotal(),
             $skipFraudDetection
         );
-        $this->orderRepository->save($this->_order);
         $this->orderSender->send($this->_order, true);
-        $this->orderRepository->save($this->_order);
 
         $ids = array();
         $invoices = $this->_order->getInvoiceCollection();
@@ -180,8 +178,10 @@ class Ipn
         $multi = count($ids)>1 ? 's' : '';
         $message = __('Notified customer about invoice'.$multi.': #%s.', implode(', ', $ids));
         $this->_order->addStatusHistoryComment($message)
-            ->setIsCustomerNotified(true)
-            ->save();
+            ->setIsCustomerNotified(true);
+        $this->_order->setIsInProcess(true);
+        $this->orderRepository->save($this->_order);
+
     }
     /**
      * Processes failed payment
