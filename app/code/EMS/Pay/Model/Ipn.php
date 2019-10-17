@@ -179,7 +179,9 @@ class Ipn
         $message = __('Notified customer about invoice'.$multi.': #%s.', implode(', ', $ids));
         $this->_order->addStatusHistoryComment($message)
             ->setIsCustomerNotified(true);
-        $this->_order->setIsInProcess(true);
+        if($this->_order->getState() === Order::STATE_NEW && count($invoices)) {
+            $this->_order->setIsInProcess(true);
+        }
         $this->orderRepository->save($this->_order);
 
     }
