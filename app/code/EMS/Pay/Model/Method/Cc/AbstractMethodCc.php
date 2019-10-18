@@ -126,15 +126,6 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
         return $this->_getMethodCodeMapper()->getEmsCodeByMagentoCode($this->_getCardType());
     }
     /**
-     * @inheritdoc
-     */
-    protected function _getMethodSpecificRequestFields()
-    {
-        $fields = parent::_getMethodSpecificRequestFields();
-        $fields[Info::AUTHENTICATE_TRANSACTION] = $this->_is3DSecureEnabled() ? 'true' : 'false';
-        return $fields;
-    }
-    /**
      * Returns card type used for payment
      *
      * @return string|null
@@ -164,6 +155,14 @@ abstract class AbstractMethodCc extends \EMS\Pay\Model\Method\EmsAbstractMethod
             $info->setCcType($this->_mapper->getHumanReadableByMagentoCode($cardType));
         }
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    protected function _getChallengeIndicator()
+    {
+        return $this->_config->getChallengeIndicator();
     }
     /**
      * @inheritdoc

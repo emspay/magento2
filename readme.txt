@@ -67,5 +67,14 @@ Automatic updates should work flawlessly; as always though, ensure you backup yo
 = 1.0.1 =
 * added new banks ideal handelsbanken and moneyou
  
+= 1.0.2 =
+* added new 3d secure attribute threeDSRequestorChallengeIndicator
+ 
+= 1.0.3 =
+* added parameter authenticate transaction
+ 
+= 1.0.4 =
+* fixed change of order status in the processing
+
 = 1.0.5 =
 * fixed timezone txndatetime
