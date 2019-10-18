@@ -503,7 +503,8 @@ abstract class EmsAbstractMethod extends AbstractMethod
      */
     protected function _getTransactionTime()
     {
-        return $this->timezone->date($this->_order->getCreatedAt())->format(Config::TXNDATE_ZEND_DATE_FORMAT);
+        $created = $this->_order->getCreatedAt();
+        return $this->timezone->date(new \DateTime($created))->format(Config::TXNDATE_ZEND_DATE_FORMAT);
     }
 
     /**

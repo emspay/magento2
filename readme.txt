@@ -4,7 +4,7 @@ Donate link: https://developer.emspay.eu
 Tags: ems, emspay, payments, magento, e-commerce, webshop, psp, ideal, sofort, credit card, creditcard, visa, mastercard, masterpass, bancontact, bitcoin, paysafecard, direct debit, incasso, sepa, banktransfer, overboeking, betalingen, klarna
 Requires at least: 2.1
 Tested up to: 2.3.3
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,3 +75,6 @@ Automatic updates should work flawlessly; as always though, ensure you backup yo
  
 = 1.0.4 =
 * fixed change of order status in the processing
+
+= 1.0.5 =
+* fixed timezone txndatetime
