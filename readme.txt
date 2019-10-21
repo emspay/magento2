@@ -77,4 +77,6 @@ Automatic updates should work flawlessly; as always though, ensure you backup yo
 * fixed change of order status in the processing
 
 = 1.0.5 =
-* fixed timezone txndatetime
+* fixed timezone txndatetime 
+= 1.0.6 =
+* updated version in README.md
