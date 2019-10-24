@@ -2,27 +2,32 @@
 
 namespace EMS\Pay\Model\Method;
 
-use EMS\Pay\Model\Currency;
 use EMS\Pay\Gateway\Config\Config;
-use EMS\Pay\Model\Hash;
-use EMS\Pay\Model\Response;
-use EMS\Pay\Model\Info;
+use EMS\Pay\Model\Currency;
 use EMS\Pay\Model\Debugger;
-use \Magento\Checkout\Model\Session;
-use \Magento\Store\Model\StoreManagerInterface;
-use \Magento\Sales\Model\Order;
+use EMS\Pay\Model\Hash;
+use EMS\Pay\Model\Info;
+use EMS\Pay\Model\Response;
+use Magento\Checkout\Model\Session;
+use Magento\Payment\Model\Method\AbstractMethod;
+use Magento\Sales\Model\Order;
+use Magento\Store\Model\StoreManagerInterface;
 
-
-
-abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
+abstract class EmsAbstractMethod extends AbstractMethod
 {
-
     /**
      * Default precision
      */
     const DEFAULT_PRECISION = 2;
 
+    /**
+     * @var string
+     */
     protected $_infoBlockType = 'EMS\Pay\Block\Payment\Info';
+
+    /**
+     * @var string
+     */
     protected $_formBlockType = 'ems_pay/payment_form_form';
 
     /**
@@ -66,8 +71,14 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected $_storeManager;
 
+    /**
+     * @var \Magento\Store\Api\Data\StoreInterface
+     */
     protected $_store;
 
+    /**
+     * @var \EMS\Pay\Gateway\Config\ConfigFactory
+     */
     protected $_configFactory;
 
     /**
@@ -86,10 +97,6 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      * @property Order _order
      */
     protected $_order = null;
-
-
-
-
 
     /**
      * Depending on magento tax configuration discount may be applied on row total price.
@@ -111,16 +118,20 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected $_itemFieldsIndex = 1;
 
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
     protected $_scopeConfig;
+
     /**
      * @var \Magento\Payment\Helper\Data
      */
     private $paymentData;
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $timezone;
-
 
     /**
      * @param Currency $currency
@@ -161,9 +172,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-
-    )
-    {
+    ) {
         parent::__construct(
             $context,
             $registry,
@@ -210,7 +219,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     public function initialize($paymentAction, $stateObject)
     {
-        $state = Order::STATE_PENDING_PAYMENT;
+        $state = Order::STATE_NEW;
         $stateObject->setState($state);
         $stateObject->setStatus('pending_payment');
         $stateObject->setIsNotified(false);
@@ -258,13 +267,15 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
                 \EMS\Pay\Model\Info::STORENAME => $this->_getStoreName(),
                 \EMS\Pay\Model\Info::MODE => $config->getDataCaptureMode(),
                 \EMS\Pay\Model\Info::CHECKOUTOPTION => $this->_getCheckoutOption(),
+                \EMS\Pay\Model\Info::AUTHENTICATE_TRANSACTION => $this->_getAuthenticateTransaction(),
+                \EMS\Pay\Model\Info::CHALLENGE_INDICATOR => $this->_getChallengeIndicator(),
                 \EMS\Pay\Model\Info::CHARGETOTAL => $this->_getChargeTotal(),
                 \EMS\Pay\Model\Info::CURRENCY => $this->_getOrderCurrencyCode(),
                 \EMS\Pay\Model\Info::ORDER_ID => $this->_getOrderId(),
                 \EMS\Pay\Model\Info::PAYMENT_METHOD => $this->_getPaymentMethod(),
-                \EMS\Pay\Model\Info::RESPONSE_FAIL_URL => $this->_store->getUrl('emspay/index/fail', array('_secure' => true)),
-                \EMS\Pay\Model\Info::RESPONSE_SUCCESS_URL => $this->_store->getUrl('emspay/index/success', array('_secure' => true)),
-                \EMS\Pay\Model\Info::TRANSACTION_NOTIFICATION_URL => $this->_store->getUrl('emspay/index/ipn', array('_secure' => true)),
+                \EMS\Pay\Model\Info::RESPONSE_FAIL_URL => $this->_store->getUrl('emspay/index/fail', ['_secure' => true]),
+                \EMS\Pay\Model\Info::RESPONSE_SUCCESS_URL => $this->_store->getUrl('emspay/index/success', ['_secure' => true]),
+                \EMS\Pay\Model\Info::TRANSACTION_NOTIFICATION_URL => $this->_store->getUrl('emspay/index/ipn', ['_secure' => true]),
                 \EMS\Pay\Model\Info::LANGUAGE => $this->_getLanguage(),
                 \EMS\Pay\Model\Info::BEMAIL => $this->_order->getCustomerEmail(),
                 \EMS\Pay\Model\Info::MOBILE_MODE => $this->_getMobileMode(),
@@ -315,8 +326,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
             $fields[Info::SSTATE] = $shippingAddress->getRegion();
             $fields[Info::SCOUNTRY] = $shippingAddress->getCountryId();
             $fields[Info::SZIP] = $shippingAddress->getPostcode();
-        }
-        else {
+        } else {
             $fields[Info::SNAME] = $billingAddress->getName();
             $fields[Info::SADDR1] = $billingAddress->getStreetLine(1);
             $fields[Info::SADDR2] = $billingAddress->getStreetLine(2);
@@ -326,10 +336,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
             $fields[Info::SZIP] = $billingAddress->getPostcode();
         }
 
-
         return $fields;
     }
-
 
     /**
      * Generates cart related (items, shipping fee, discount) payment request fields
@@ -386,7 +394,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
             $this->_roundPrice($order->getBaseShippingInclTax()) . Info::CART_ITEM_FIELD_SEPARATOR .
             $this->_roundPrice($order->getBaseShippingAmount()) . Info::CART_ITEM_FIELD_SEPARATOR .
             $this->_roundPrice($order->getBaseShippingTaxAmount()) . Info::CART_ITEM_FIELD_SEPARATOR .
-            Info::CART_ITEM_SHIPPING_AMOUNT;;
+            Info::CART_ITEM_SHIPPING_AMOUNT;
         $this->_itemFieldsIndex++;
 
         if ($this->_getDiscountInclTax() != 0) {
@@ -397,7 +405,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
                 $this->_getDiscountInclTax() . Info::CART_ITEM_FIELD_SEPARATOR .
                 $this->_getDiscount() . Info::CART_ITEM_FIELD_SEPARATOR .
                 $this->_getDiscountTaxAmount() . Info::CART_ITEM_FIELD_SEPARATOR .
-                Info::CART_ITEM_SHIPPING_AMOUNT;;
+                Info::CART_ITEM_SHIPPING_AMOUNT;
         }
 
         return $fields;
@@ -445,6 +453,24 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     }
 
     /**
+     * Retrieves Challenge Indicator option
+     *
+     * @return string
+     */
+    protected function _getChallengeIndicator()
+    {
+        return $this->_config->getChallengeIndicator();
+    }
+
+    /**
+     * @return boolean
+     */
+    protected function _getAuthenticateTransaction()
+    {
+        return $this->_config->getAuthenticateTransaction();
+    }
+
+    /**
      * Retrieves payment method code used by ems based on magento code
      *
      * @return string
@@ -477,7 +503,8 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
      */
     protected function _getTransactionTime()
     {
-        return $this->timezone->date($this->_order->getCreatedAt())->format(Config::TXNDATE_ZEND_DATE_FORMAT);
+        $created = $this->_order->getCreatedAt();
+        return $this->timezone->date(new \DateTime($created))->format(Config::TXNDATE_ZEND_DATE_FORMAT);
     }
 
     /**
@@ -733,7 +760,7 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     protected function _getConfig()
     {
         if (null === $this->_config) {
-        $store = $this->_storeManager->getStore();
+            $store = $this->_storeManager->getStore();
             $this->_config =  $this->_configFactory->create();
             $this->_config->setMethod($this->_code);
             $this->_config->setStoreId(is_object($store) ? $store->getId() : $store);
@@ -786,14 +813,16 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
     /**
      * @param Order $order
      */
-    protected function _initOrder(\Magento\Sales\Model\Order $order) {
-       $this->_order = $order;
+    protected function _initOrder(\Magento\Sales\Model\Order $order)
+    {
+        $this->_order = $order;
     }
 
     /**
      * @return Hash
      */
-    protected function _initHash() {
+    protected function _initHash()
+    {
         if (null === $this->_config) {
             $this->_getConfig();
         }
@@ -801,7 +830,5 @@ abstract class EmsAbstractMethod extends \Magento\Payment\Model\Method\AbstractM
         $this->hash->setConfig($this->_config);
 
         return $this->hash;
-
     }
-
 }

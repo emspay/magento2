@@ -8,8 +8,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <!--<group id="ems_pay_section" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">-->
-            <!--<label>EMS Pay</label>-->
             <group id="ems_pay_general" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>EMS Global configuration</label>
                 <field id="operation_mode" translate="label" type="select" sortOrder="30" showInDefault="1"
@@ -19,7 +17,7 @@
                 </field>
                 <field id="store_name_test" translate="label" type="text" sortOrder="31" showInDefault="1"
                        showInWebsite="1" showInStore="1">
-                    <label>Store name</label>
+                    <label>Store name Test</label>
                     <comment>This is the ID of the store that was given to you by EMS</comment>
                     <depends>
                         <field id="operation_mode">test</field>
@@ -27,7 +25,7 @@
                 </field>
                 <field id="shared_secret_test" translate="label" type="obscure" sortOrder="32" showInDefault="1"
                        showInWebsite="1" showInStore="1">
-                    <label>Operation mode</label>
+                    <label>Shared Secret Test</label>
                     <comment>This is the shared secret provided to you by EMS.</comment>
                     <depends>
                         <field id="operation_mode">test</field>
@@ -36,7 +34,7 @@
                 </field>
                 <field id="store_name_production" translate="label" type="text" sortOrder="33" showInDefault="1"
                        showInWebsite="1" showInStore="1">
-                    <label>Store name</label>
+                    <label>Store name Production</label>
                     <comment>This is the ID of the store that was given to you by EMS</comment>
                     <depends>
                         <field id="operation_mode">production</field>
@@ -44,23 +42,33 @@
                 </field>
                 <field id="shared_secret_production" translate="label" type="obscure" sortOrder="34" showInDefault="1"
                        showInWebsite="1" showInStore="1">
-                    <label>Operation mode</label>
+                    <label>Shared Secret Production</label>
                     <comment>This is the shared secret provided to you by EMS.</comment>
                     <depends>
                         <field id="operation_mode">production</field>
                     </depends>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
-                <field id="checkout_option" translate="label" type="select" sortOrder="35" showInDefault="1"
+                <field id="challenge_indicator" translate="label" type="select" sortOrder="35" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Challenge Indicator</label>
+                    <source_model>EMS\Pay\Model\Source\ChallengeIndicator</source_model>
+                </field>
+                <field id="checkout_option" translate="label" type="select" sortOrder="36" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>Checkout option</label>
                     <source_model>EMS\Pay\Model\Source\CheckoutOption</source_model>
                 </field>
-                <field id="log_enabled" translate="label" type="select" sortOrder="36" showInDefault="1"
+                <field id="log_enabled" translate="label" type="select" sortOrder="37" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Logging</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enables/disables logging</comment>
+                </field>
+                <field id="data_capture_mode" translate="label" type="select" sortOrder="35" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Data Capture Mode</label>
+                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
                 </field>
             </group>
             <group id="ems_pay_cc" translate="label" type="text" sortOrder="36" showInDefault="1"
@@ -80,26 +88,10 @@
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                 </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
-                </field>
                 <field id="cctypes" translate="label" type="multiselect" sortOrder="50" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Credit Card Types</label>
                     <source_model>EMS\Pay\Model\Source\CcType</source_model>
-                </field>
-                <field id="enable_3dsecure" translate="label" type="select" sortOrder="60" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Enable 3D Secure</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>If your credit card agreement includes 3D Secure and your Merchant ID has been activated to
-                        use this service.
-                    </comment>
                 </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
@@ -151,14 +143,6 @@
                        showInWebsite="1" showInStore="0">
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
-                </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
                 </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
@@ -212,14 +196,6 @@
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                 </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
-                </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Allowed Currencies</label>
@@ -271,14 +247,6 @@
                        showInWebsite="1" showInStore="0">
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
-                </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
                 </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
@@ -332,14 +300,6 @@
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                 </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
-                </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Allowed Currencies</label>
@@ -392,14 +352,6 @@
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                 </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
-                </field>
                 <field id="specific_currency" translate="label" type="multiselect" sortOrder="70" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Allowed Currencies</label>
@@ -451,14 +403,6 @@
                        showInWebsite="1" showInStore="0">
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
-                </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
                 </field>
                 <field id="bank_selection_enabled" translate="label" type="select" sortOrder="45" showInDefault="1"
                        showInWebsite="1" showInStore="0">
@@ -517,14 +461,6 @@
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                 </field>
-                <field id="data_capture_mode" translate="label" type="select" sortOrder="40" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Data capture mode</label>
-                    <source_model>EMS\Pay\Model\Source\DataTransferMode</source_model>
-                    <depends>
-                        <field id="checkout_option">classic</field>
-                    </depends>
-                </field>
                 <field id="bank_selection_enabled" translate="label" type="select" sortOrder="45" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Enable issuer bank selection</label>
@@ -565,7 +501,6 @@
                     <frontend_class>validate-number</frontend_class>
                 </field>
             </group>
-            <!--</group>-->
         </section>
     </system>
 </config>
