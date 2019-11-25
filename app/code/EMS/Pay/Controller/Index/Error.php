@@ -2,58 +2,32 @@
 
 namespace EMS\Pay\Controller\Index;
 
-use \EMS\Pay\Model\Response;
-use \EMS\Pay\Model\Debugger;
+use EMS\Pay\Model\Debugger;
 use EMS\Pay\Gateway\Config\Config;
-use \EMS\Pay\Controller\EmsAbstract;
-use Magento\Framework\Controller\ResultFactory;
+use EMS\Pay\Controller\EmsAbstract;
+use Magento\Framework\App\Action\Context;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
+/**
+ * Class Error
+ * @package EMS\Pay\Controller\Index
+ */
 class Error extends EmsAbstract
 {
     /**
-     * Core registry
+     * Error constructor.
      *
-     * @var \Magento\Framework\Registry
-     */
-    protected $_coreRegistry = null;
-
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    /**
-     * @var \Magento\Framework\App\Action\Context
-     */
-    private $responseFactory;
-    /**
-     * @var \EMS\Pay\Model\Debugger
-     */
-    private $debugger;
-
-    /**
-     * Constructor
-     *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \EMS\Pay\Model\ResponseFactory $responseFactory
+     * @param Context $context
+     * @param OrderSender $orderSender
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \EMS\Pay\Model\ResponseFactory $responseFactory
-    )
-    {
-        parent::__construct($context, $coreRegistry, $orderSender);
-        $this->checkoutSession = $checkoutSession;
-        $this->_coreRegistry = $coreRegistry;
-        $this->responseFactory = $responseFactory;
+        Context $context,
+        OrderSender $orderSender,
+        Config $config
+    ) {
+        parent::__construct($context, $orderSender, $config);
     }
-
 
     /**
      *  Action used to restore quote if exception occurred while redirecting user to payment gateway if payment failed
@@ -69,16 +43,13 @@ class Error extends EmsAbstract
             return $resultRedirect;
         }
         try {
-                $message = __('Order canceled because of error');
-                $this->_returnCustomerQuoteError(true, $message);
-
+            $message = __('Order canceled because of error');
+            $this->_returnCustomerQuoteError(true, $message);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
         }
 
-
         $resultRedirect->setPath('checkout', ['_secure' => true]);
         return $resultRedirect;
-
     }
 }

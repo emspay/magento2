@@ -1,62 +1,62 @@
 <?php
-/**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
- */
+
 namespace EMS\Pay\Controller\Index;
 
-use \EMS\Pay\Controller\EmsAbstract;
+use EMS\Pay\Controller\EmsAbstract;
+use EMS\Pay\Gateway\Config\Config;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Registry;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
+/**
+ * Class Redirect
+ * @package EMS\Pay\Controller\Index
+ */
 class Redirect extends EmsAbstract
 {
     /**
      * Core registry
      *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $_coreRegistry = null;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     private $checkoutSession;
 
     /**
-     * @var \Magento\Framework\App\Action\Context
-     */
-    private $context;
-
-    /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
+     * @var JsonFactory
      */
     protected $resultJsonFactory;
 
     /**
      * Redirect constructor.
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+     * @param Context $context
+     * @param Registry $coreRegistry
+     * @param OrderSender $orderSender
+     * @param Session $checkoutSession
+     * @param JsonFactory $resultJsonFactory
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+        Context $context,
+        Registry $coreRegistry,
+        OrderSender $orderSender,
+        Session $checkoutSession,
+        JsonFactory $resultJsonFactory,
+        Config $config
     ) {
         $this->_coreRegistry = $coreRegistry;
         $this->checkoutSession = $checkoutSession;
         $this->resultJsonFactory = $resultJsonFactory;
-        parent::__construct($context, $coreRegistry, $orderSender);
-        $this->context = $context;
+        parent::__construct($context, $orderSender, $config);
     }
 
-
     /**
-     *
-     *
      * @inheritdoc
      */
     public function execute()
@@ -87,13 +87,11 @@ class Redirect extends EmsAbstract
             $this->_getCheckout()->clearQuote();
             $this->_getCheckout()->clearHelperData();
             return $this->resultJsonFactory->create()->setData($joineJsonArray);
-            
         } catch (\Exception $ex) {
             $this->messageManager->addErrorMessage($ex->getMessage());
             $this->messageManager->addErrorMessage(__('There was an error processing your order. Please contact us or try again later.'));
             $resultRedirect->setPath('*/*/error', ['_secure' => true]);
             return $resultRedirect;
         }
-
     }
 }

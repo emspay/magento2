@@ -5,8 +5,9 @@ namespace EMS\Pay\Gateway\Config;
 use EMS\Pay\Model\Currency;
 use EMS\Pay\Model\MobileDetect;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Payment\Model\Method\AbstractMethod;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -77,6 +78,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const XML_CONFIG_SHARED_SECRET_TEST = 'payment/ems_pay_general/shared_secret_test';
     const XML_CONFIG_SHARED_SECRET_PRODUCTION = 'payment/ems_pay_general/shared_secret_production';
     const XML_CONFIG_CHALLENGE_INDICATOR = 'payment/ems_pay_general/challenge_indicator';
+    const XML_CONFIG_ORDER_CONFIRMATION_EMAIL_SENDING = 'payment/ems_pay_emails/order_confirmation_email_sending';
+    const XML_CONFIG_INVOICE_CONFIRMATION_EMAIL_SENDING = 'payment/ems_pay_emails/invoice_confirmation_email_sending';
+    const XML_CONFIG_FORCE_SYNC_MODE_EMAIL_SENDING = 'payment/ems_pay_emails/force_sync_mode';
     const XML_CONFIG_LOGGING_ENABLED = 'payment/ems_pay_general/log_enabled';
     const XML_CONFIG_IDEAL_BANK_SELECTION = 'payment/ems_pay_ideal/bank_selection_enabled';
     const XML_CONFIG_IDEAL_CUSTOMER_ID_SELECTION = 'payment/ems_pay_ideal/customerid_selection_enabled';
@@ -146,7 +150,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      *
      * @var array ISO 3166-1 alpha-2 (dwo letter) country codes
      */
-    protected   $_klarnaSupportedCountries = [
+    protected $_klarnaSupportedCountries = [
         'AT', // Austria
         'DE', // Germany
         'NL', // Netherlands
@@ -308,8 +312,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         Repository $assetRepo,
         ResolverInterface $localeResolver,
         array $params = []
-        )
-    {
+    ) {
         $this->_storeManager = $storeManager;
         $this->_scopeConfig = $scopeConfig;
         $this->_currency = $currency;
@@ -404,7 +407,34 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isDebuggingEnabled($storeId = null)
     {
-        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_LOGGING_ENABLED, ScopeInterface::SCOPE_STORE,$storeId);
+        return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_LOGGING_ENABLED, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function isOrderConfirmationEmailSending($storeId = null)
+    {
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_ORDER_CONFIRMATION_EMAIL_SENDING, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function isInvoiceConfirmationEmailSending($storeId = null)
+    {
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_INVOICE_CONFIRMATION_EMAIL_SENDING, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return mixed
+     */
+    public function isForceSyncModeEmailSending($storeId = null)
+    {
+        return $this->_scopeConfig->getValue(self::XML_CONFIG_FORCE_SYNC_MODE_EMAIL_SENDING, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
@@ -424,7 +454,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function isCurrencySupported($currencyCode)
     {
-
         $isSupported =$this->_currency->isCurrencySupported($currencyCode);
         $allowedCurrencies = $this->getConfigData(self::CONFIG_FIELD_DATA_SPECIFIC_CURRENCY);
         if ((string)$allowedCurrencies === '') {
@@ -465,12 +494,14 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_IDEAL_BANK_SELECTION);
     }
-    
+
+    /**
+     * @return bool
+     */
     public function isIdealCustomerSelectionEnabled()
     {
         return $this->_scopeConfig->isSetFlag(self::XML_CONFIG_IDEAL_CUSTOMER_ID_SELECTION);
     }
-
 
     /**
      * @return bool
@@ -548,7 +579,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param string $code
      * @return bool
      */
-    public function isIdealIssuingBankCodeValid($code) {
+    public function isIdealIssuingBankCodeValid($code)
+    {
         return isset($this->_idealIssuingBanks[strtoupper($code)]);
     }
 
@@ -556,7 +588,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param string $code
      * @return bool
      */
-    public function isBancontactIssuingBankCodeValid($code) {
+    public function isBancontactIssuingBankCodeValid($code)
+    {
         return isset($this->_bancontactIssuingBanks[strtoupper($code)]);
     }
 
@@ -579,7 +612,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param string $code
      * @return bool
      */
-    public function isMaestroCardTypeCodeValid($code) {
+    public function isMaestroCardTypeCodeValid($code)
+    {
         return isset($this->_maestroCardTypes[$code]);
     }
 
@@ -641,7 +675,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      * @param string $code
      * @return bool
      */
-    public function isCreditCardTypeEnabled($code) {
+    public function isCreditCardTypeEnabled($code)
+    {
         $enabledCardTypes = $this->getEnabledCreditCardTypes();
         return isset($enabledCardTypes[$code]);
     }
@@ -722,11 +757,13 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
-     * @param string|\Magento\Payment\Model\MethodInterface $method
+     * @param $method
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function setMethod($method)
     {
-        if ($method instanceof \Magento\Payment\Model\Method\AbstractMethod) {
+        if ($method instanceof AbstractMethod) {
             $this->_methodCode = $method->getCode();
         } elseif (is_string($method)) {
             $this->_methodCode = $method;

@@ -8,6 +8,12 @@
                 <checkout_option>classic</checkout_option>
                 <data_capture_mode>fullpay</data_capture_mode>
             </ems_pay_general>
+            <ems_pay_emails>
+                <model>EMS\Pay\Model\Method\EmsDefaultMethod</model>
+                <order_confirmation_email_sending>1</order_confirmation_email_sending>
+                <invoice_confirmation_email_sending>1</invoice_confirmation_email_sending>
+                <force_sync_mode>0</force_sync_mode>
+            </ems_pay_emails>
             <ems_pay_cc>
                 <model>EMS\Pay\Model\Method\Cc</model>
                 <active>0</active>

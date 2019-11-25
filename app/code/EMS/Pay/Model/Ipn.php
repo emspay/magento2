@@ -1,90 +1,99 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dev01
- * Date: 13.11.17
- * Time: 16:04
- */
 
 namespace EMS\Pay\Model;
 
-use EMS\Pay\Model\Response;
-use \EMS\Pay\Model\Debugger;
-use Magento\Sales\Model\Order;
 use EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Gateway\Config\ConfigFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\Order\Invoice\Sender\EmailSender;
+use Magento\Sales\Model\OrderFactory;
+use Psr\Log\LoggerInterface;
 
-
+/**
+ * Class Ipn
+ * @package EMS\Pay\Model
+ */
 class Ipn
 {
     /**
      * @var Response
      */
     protected $response;
+
     /**
      * @var Order
      */
     protected $_order;
+
     /**
      * @var Config
      */
     protected $_config;
+
     /**
      * Collected debug information
      *
      * @var array
      */
     protected $_debugData = [];
+
     /**
      * @var ResponseFactory
      */
     private $responseFactory;
+
     /**
      * @var \Magento\Payment\Model\Method\Logger
      */
     private $logger;
+
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
     private $orderRepository;
 
     /**
-     * @var \EMS\Pay\Gateway\Config\ConfigFactory
+     * @var ConfigFactory
      */
     private $configFactory;
+
     /**
-     * @var Order\Invoice\Sender\EmailSender
+     * @var EmailSender
      */
     private $emailSender;
+
     /**
-     * @var Order\Email\Sender\OrderSender
+     * @var OrderSender
      */
     private $orderSender;
+
     /**
-     * @var \Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     private $orderFactory;
-
 
     /**
      * Ipn constructor.
      * @param Config $config
      * @param ResponseFactory $responseFactory
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param \EMS\Pay\Gateway\Config\ConfigFactory $configFactory
-     * @param Order\Invoice\Sender\EmailSender $emailSender
-     * @param Order\Email\Sender\OrderSender $orderSender
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
+     * @param LoggerInterface $logger
+     * @param OrderRepositoryInterface $orderRepository
+     * @param ConfigFactory $configFactory
+     * @param EmailSender $emailSender
+     * @param OrderSender $orderSender
+     * @param OrderFactory $orderFactory
      */
     public function __construct(
         Config $config,
-        \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \EMS\Pay\Gateway\Config\ConfigFactory $configFactory,
-        \Magento\Sales\Model\Order\Invoice\Sender\EmailSender $emailSender,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Sales\Model\OrderFactory $orderFactory
+        ResponseFactory $responseFactory,
+        LoggerInterface $logger,
+        OrderRepositoryInterface $orderRepository,
+        ConfigFactory $configFactory,
+        EmailSender $emailSender,
+        OrderSender $orderSender,
+        OrderFactory $orderFactory
     )
     {
         $this->_config = $config;
@@ -96,6 +105,7 @@ class Ipn
         $this->orderSender = $orderSender;
         $this->orderFactory = $orderFactory;
     }
+
     /**
      * Get ipn notification data, verify request, process order
      *
@@ -120,6 +130,7 @@ class Ipn
         $this->_debugData['success'] = __('IPN request processed');
         $this->_debug();
     }
+
     /**
      * IPN workflow implementation. Runs corresponding response handler depending on status
      *
@@ -146,10 +157,12 @@ class Ipn
             throw $ex;
         }
     }
+
     /**
      * Processes successful payment
      *
      * @param bool $skipFraudDetection
+     * @throws \Exception
      */
     protected function _registerSuccess($skipFraudDetection = false)
     {
@@ -165,26 +178,38 @@ class Ipn
             $response->getChargeTotal(),
             $skipFraudDetection
         );
-        $this->orderSender->send($this->_order, true);
 
-        $ids = array();
-        $invoices = $this->_order->getInvoiceCollection();
-        foreach($invoices as $invoice) {
-            if ($invoice) {
-                $ids[] = $invoice->getIncrementId();
-                $this->emailSender->send($this->_order, $invoice, null,true);
-            }
-        }
-        $multi = count($ids)>1 ? 's' : '';
-        $message = __('Notified customer about invoice'.$multi.': #%s.', implode(', ', $ids));
-        $this->_order->addStatusHistoryComment($message)
-            ->setIsCustomerNotified(true);
-        if($this->_order->getState() === Order::STATE_NEW && count($invoices)) {
+        $this->sendInvoice();
+
+        if ($this->_order->getState() === Order::STATE_NEW && $this->_order->hasInvoices()) {
             $this->_order->setIsInProcess(true);
         }
         $this->orderRepository->save($this->_order);
-
     }
+
+    /**
+     * Invoice Sending
+     *
+     * @throws \Exception
+     */
+    protected function sendInvoice()
+    {
+        if (!$this->_config->isInvoiceConfirmationEmailSending() || !$this->_order->hasInvoices()) {
+            return;
+        }
+        $ids = [];
+        $invoices = $this->_order->getInvoiceCollection();
+        foreach ($invoices as $invoice) {
+            $ids[] = $invoice->getIncrementId();
+            $this->emailSender->send($this->_order, $invoice, null, $this->_config->isForceSyncModeEmailSending());
+        }
+        $multi = count($ids) > 1 ? 's' : '';
+        $message = __('Notified customer about invoice' . $multi . ': #%s.', implode(', ', $ids));
+        $history = $this->_order->addCommentToStatusHistory($message)
+            ->setIsCustomerNotified(true);
+        $history->save();
+    }
+
     /**
      * Processes failed payment
      */
@@ -194,6 +219,7 @@ class Ipn
         $this->_order->cancel();
         $this->orderRepository->save($this->_order);
     }
+
     /**
      * Processes pending payment notification
      */
@@ -212,14 +238,15 @@ class Ipn
         if ($payment->getMethod() == Config::METHOD_KLARNA) {
             $message = __('Please visit the EMS virtual terminal to approve the payment for Klarna.');
         }
-        $this->_order
-            ->setState(Order::STATE_PAYMENT_REVIEW, true, $this->_createIpnComment($message));
+        $this->_order->setState(Order::STATE_PAYMENT_REVIEW, true, $this->_createIpnComment($message));
         $this->orderRepository->save($this->_order);
     }
+
     /**
      * Initializes order object based on data from transaction response
      *
-     * @return \Magento\Sales\Model\Order
+     * @return Order
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      */
     protected function _initOrder()
@@ -233,11 +260,12 @@ class Ipn
         }
         //reinitialize config with method code and store id taken from order
         $methodCode = $this->_order->getPayment()->getMethod();
-        $this->_config =  $this->configFactory->create()
+        $this->_config = $this->configFactory->create()
             ->setMethod($methodCode)
             ->setStoreId($this->_order->getStoreId());
         return $this->_order;
     }
+
     /**
      * @param string $comment
      * @return string
@@ -245,7 +273,7 @@ class Ipn
     protected function _createIpnComment($comment = '')
     {
         $status = $this->response->getTransactionStatus();
-        $message = __('IPN '.$status .', approval code ' . $this->response->getApprovalCode());
+        $message = __('IPN ' . $status . ', approval code ' . $this->response->getApprovalCode());
         if ($this->response->getFailReason()) {
             $message .= ' ' . $this->response->getFailReason();
         }
@@ -254,6 +282,7 @@ class Ipn
         }
         return $message;
     }
+
     /**
      * Map payment information from transaction response to payment object
      * Returns true if there were changes in information
@@ -277,6 +306,7 @@ class Ipn
         }
         return $currentInfo != $data;
     }
+
     /**
      * Log debug data to file
      */
@@ -286,6 +316,7 @@ class Ipn
             Debugger::debug($this->_debugData, $this->_config->getLogFile());
         }
     }
+
     /**
      * Formats exception into text message that can be logged
      *
