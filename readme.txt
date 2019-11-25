@@ -80,3 +80,6 @@ Automatic updates should work flawlessly; as always though, ensure you backup yo
 * fixed timezone txndatetime 
 = 1.0.6 =
 * updated version in README.md
+ 
+= 1.0.7 =
+* Add Order and Invoice confirmation email sending
