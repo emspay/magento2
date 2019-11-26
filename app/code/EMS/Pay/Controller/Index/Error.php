@@ -43,7 +43,7 @@ class Error extends EmsAbstract
             return $resultRedirect;
         }
         try {
-            $message = __('Order canceled because of error');
+            $message = __('Order cancelled because of error');
             $this->_returnCustomerQuoteError(true, $message);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e);
