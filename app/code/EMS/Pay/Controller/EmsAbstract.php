@@ -1,46 +1,51 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dev01
- * Date: 30.11.17
- * Time: 10:00
- */
 
 namespace EMS\Pay\Controller;
 
-use \EMS\Pay\Gateway\Config\Config;
+use EMS\Pay\Gateway\Config\Config;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Registry;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
-
-abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
+/**
+ * Class EmsAbstract
+ * @package EMS\Pay\Controller
+ */
+abstract class EmsAbstract extends Action
 {
-
     /**
      * Core registry
      *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $_coreRegistry = null;
+
     /**
-     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     * @var OrderSender
      */
     private $orderSender;
 
+    /**
+     * @var Config
+     */
+    protected $config;
 
     /**
      * Constructor
      *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+     * @param Context $context
+     * @param OrderSender $orderSender
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        Context $context,
+        OrderSender $orderSender,
+        Config $config
     ) {
         parent::__construct($context);
-        $this->_coreRegistry = $coreRegistry;
         $this->orderSender = $orderSender;
+        $this->config = $config;
     }
 
     /**
@@ -62,11 +67,9 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Return customer quote
-     *
      * @param bool $cancelOrder
      * @param string $errorMsg
-     * @return void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     protected function _returnCustomerQuoteSuccess($cancelOrder = false, $errorMsg = '')
     {
@@ -76,7 +79,9 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
             $order = $this->_objectManager->create('Magento\Sales\Model\Order')->loadByIncrementId($incrementId);
             if ($order->getId()) {
                 try {
-                    $this->orderSender->send($order);
+                    if ($this->config->isOrderConfirmationEmailSending()) {
+                        $this->orderSender->send($order, $this->config->isForceSyncModeEmailSending());
+                    }
                     /** @var \Magento\Quote\Api\CartRepositoryInterface $quoteRepository */
                     $quoteRepository = $this->_objectManager->create('Magento\Quote\Api\CartRepositoryInterface');
                     /** @var \Magento\Quote\Model\Quote $quote */
@@ -102,6 +107,11 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
         }
     }
 
+    /**
+     * @param bool $cancelOrder
+     * @param string $errorMsg
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     protected function _returnCustomerQuoteError($cancelOrder = false, $errorMsg = '')
     {
         $incrementId = $this->_getEmsPaySession()->getLastOrderIncrementId();
@@ -114,7 +124,7 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
                     $quoteRepository = $this->_objectManager->create('Magento\Quote\Api\CartRepositoryInterface');
                     /** @var \Magento\Quote\Model\Quote $quote */
                     $quote = $quoteRepository->get($order->getQuoteId());
-                    $quote->addErrorInfo('error',null, null,$errorMsg);
+                    $quote->addErrorInfo('error', null, null, $errorMsg);
                     $quote->setIsActive(1)->setReservedOrderId(null);
                     $quoteRepository->save($quote);
                     $this->_getCheckout()->replaceQuote($quote);
@@ -130,5 +140,4 @@ abstract class EmsAbstract extends \Magento\Framework\App\Action\Action
             }
         }
     }
-
 }

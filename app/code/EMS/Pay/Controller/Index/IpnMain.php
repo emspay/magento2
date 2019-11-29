@@ -2,76 +2,54 @@
 
 namespace EMS\Pay\Controller\Index;
 
+use EMS\Pay\Controller\EmsAbstract;
 use EMS\Pay\Gateway\Config\Config;
-use \EMS\Pay\Controller\EmsAbstract;
-use \EMS\Pay\Model\Debugger;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
+use EMS\Pay\Model\Debugger;
+use EMS\Pay\Model\IpnFactory;
+use Magento\Framework\App\Action\Context;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Class IpnMain
+ * @package EMS\Pay\Controller\Index
+ */
 class IpnMain extends EmsAbstract
 {
-    /**
-     * Core registry
-     *
-     * @var \Magento\Framework\Registry
-     */
-    protected $_coreRegistry = null;
-
     /**
      * @var \EMS\Pay\Model\Ipn
      */
     protected $ipn;
 
     /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    /**
-     * @var \Magento\Framework\App\Action\Context
-     */
-    private $responseFactory;
-    /**
-     * @var \EMS\Pay\Model\Debugger
-     */
-    private $debugger;
-    /**
-     * @var \EMS\Pay\Model\IpnFactory
+     * @var IpnFactory
      */
     private $ipnFactory;
+
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * Constructor
-     *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \EMS\Pay\Model\ResponseFactory $responseFactory
-     * @param \EMS\Pay\Model\IpnFactory $ipnFactory
-     * @param \Psr\Log\LoggerInterface $logger
+     * IpnMain constructor.
+     * @param Context $context
+     * @param OrderSender $orderSender
+     * @param IpnFactory $ipnFactory
+     * @param LoggerInterface $logger
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \EMS\Pay\Model\ResponseFactory $responseFactory,
-        \EMS\Pay\Model\IpnFactory $ipnFactory,
-        \Psr\Log\LoggerInterface $logger
-    )
-    {
-        parent::__construct($context, $coreRegistry, $orderSender);
-        $this->checkoutSession = $checkoutSession;
-        $this->_coreRegistry = $coreRegistry;
-        $this->responseFactory = $responseFactory;
+        Context $context,
+        OrderSender $orderSender,
+        IpnFactory $ipnFactory,
+        LoggerInterface $logger,
+        Config $config
+    ) {
+        parent::__construct($context, $orderSender, $config);
         $this->ipnFactory = $ipnFactory;
         $this->logger = $logger;
     }
-
 
     /**
      * @inheritdoc
@@ -100,5 +78,4 @@ class IpnMain extends EmsAbstract
             $this->getResponse()->setHttpResponseCode(500);
         }
     }
-
 }
