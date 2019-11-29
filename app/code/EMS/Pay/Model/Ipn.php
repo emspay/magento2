@@ -173,7 +173,7 @@ class Ipn
      */
     protected function _registerSuccess($skipFraudDetection = false)
     {
-        $this->response = $this->getResponseByCurrencyFormat();
+        $response = $this->getResponseByCurrencyFormat();
         $this->_importPaymentInformation();
         $payment = $this->_order->getPayment();
         $payment->setTransactionId($response->getTransactionId());
