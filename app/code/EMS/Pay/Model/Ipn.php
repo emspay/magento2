@@ -124,7 +124,6 @@ class Ipn
         $this->_debugData[] = __('Processing IPN request');
         $this->_debugData['ipn_params'] = $requestParams;
         $this->response = $this->responseFactory->create(['response' => $requestParams]);
-        $this->response = $this->getResponseByCurrencyFormat();
         try {
             $this->_order = null;
             $this->_initOrder();
@@ -174,7 +173,7 @@ class Ipn
      */
     protected function _registerSuccess($skipFraudDetection = false)
     {
-        $response = $this->response;
+        $this->response = $this->getResponseByCurrencyFormat();
         $this->_importPaymentInformation();
         $payment = $this->_order->getPayment();
         $payment->setTransactionId($response->getTransactionId());
@@ -186,24 +185,36 @@ class Ipn
             $response->getChargeTotal(),
             $skipFraudDetection
         );
-        $this->orderSender->send($this->_order, true);
 
-        $ids = array();
-        $invoices = $this->_order->getInvoiceCollection();
-        foreach($invoices as $invoice) {
-            if ($invoice) {
-                $ids[] = $invoice->getIncrementId();
-                $this->emailSender->send($this->_order, $invoice, null,true);
-            }
-        }
-        $multi = count($ids)>1 ? 's' : '';
-        $message = __('Notified customer about invoice'.$multi.': #%s.', implode(', ', $ids));
-        $this->_order->addStatusHistoryComment($message)
-            ->setIsCustomerNotified(true);
-        if($this->_order->getState() === Order::STATE_NEW && count($invoices)) {
+        $this->sendInvoice();
+
+        if ($this->_order->getState() === Order::STATE_NEW && $this->_order->hasInvoices()) {
             $this->_order->setIsInProcess(true);
         }
         $this->orderRepository->save($this->_order);
+    }
+
+    /**
+     * Invoice Sending
+     *
+     * @throws \Exception
+     */
+    protected function sendInvoice()
+    {
+        if (!$this->_config->isInvoiceConfirmationEmailSending() || !$this->_order->hasInvoices()) {
+            return;
+        }
+        $ids = [];
+        $invoices = $this->_order->getInvoiceCollection();
+        foreach ($invoices as $invoice) {
+            $ids[] = $invoice->getIncrementId();
+            $this->emailSender->send($this->_order, $invoice, null, $this->_config->isForceSyncModeEmailSending());
+        }
+        $multi = count($ids) > 1 ? 's' : '';
+        $message = __('Notified customer about invoice' . $multi . ': #%s.', implode(', ', $ids));
+        $history = $this->_order->addCommentToStatusHistory($message)
+            ->setIsCustomerNotified(true);
+        $history->save();
     }
 
     /**

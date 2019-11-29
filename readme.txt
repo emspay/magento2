@@ -81,5 +81,13 @@ Automatic updates should work flawlessly; as always though, ensure you backup yo
 = 1.0.6 =
 * updated version in README.md
  
+<<<<<<< HEAD
 = 1.0.9 =
 * Fix generating invoice
+=======
+= 1.0.7 =
+* Add Order and Invoice confirmation email sending
+ 
+= 1.0.8 =
+* Fix spelling mistake
+>>>>>>> eca860e4abe0f824c95f1196a8f210cd65b4a3b9
