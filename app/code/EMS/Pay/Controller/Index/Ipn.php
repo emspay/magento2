@@ -2,17 +2,19 @@
 
 namespace EMS\Pay\Controller\Index;
 
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 
 if (interface_exists('Magento\Framework\App\CsrfAwareActionInterface')) {
-    class Ipn extends IpnMain implements \Magento\Framework\App\CsrfAwareActionInterface
+    class Ipn extends IpnMain implements CsrfAwareActionInterface
     {
         /**
          * @inheritDoc
          */
         public function createCsrfValidationException(
             RequestInterface $request
-        ): ?\Magento\Framework\App\Request\InvalidRequestException {
+        ): ?InvalidRequestException {
             return null;
         }
 

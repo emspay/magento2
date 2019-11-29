@@ -3,58 +3,40 @@
 namespace EMS\Pay\Controller\Index;
 
 use EMS\Pay\Gateway\Config\Config;
-use \EMS\Pay\Model\Response;
-use \EMS\Pay\Controller\EmsAbstract;
-use \EMS\Pay\Model\Debugger;
-use Magento\Framework\Controller\ResultFactory;
+use EMS\Pay\Model\Response;
+use EMS\Pay\Controller\EmsAbstract;
+use EMS\Pay\Model\Debugger;
+use EMS\Pay\Model\ResponseFactory;
+use Magento\Framework\App\Action\Context;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
-
+/**
+ * Class Success
+ * @package EMS\Pay\Controller\Index
+ */
 class Success extends EmsAbstract
 {
     /**
-     * Core registry
-     *
-     * @var \Magento\Framework\Registry
-     */
-    protected $_coreRegistry = null;
-
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    /**
-     * @var \Magento\Framework\App\Action\Context
+     * @var ResponseFactory
      */
     private $responseFactory;
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $debugger;
 
     /**
-     * Constructor
-     *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \EMS\Pay\Model\ResponseFactory $responseFactory
-     * @param \EMS\Pay\Model\Debugger $debugger
+     * Success constructor.
+     * @param Context $context
+     * @param OrderSender $orderSender
+     * @param ResponseFactory $responseFactory
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \EMS\Pay\Model\ResponseFactory $responseFactory
-    )
-    {
-        parent::__construct($context, $coreRegistry, $orderSender);
-        $this->checkoutSession = $checkoutSession;
-        $this->_coreRegistry = $coreRegistry;
+        Context $context,
+        OrderSender $orderSender,
+        ResponseFactory $responseFactory,
+        Config $config
+    ) {
+        parent::__construct($context, $orderSender, $config);
         $this->responseFactory = $responseFactory;
     }
-
 
     /**
      * @inheritdoc
@@ -81,9 +63,7 @@ class Success extends EmsAbstract
             $this->messageManager->addErrorMessage($e);
         }
 
-
         $resultRedirect->setPath('checkout/onepage/success', ['_secure' => true]);
         return $resultRedirect;
-
     }
 }
