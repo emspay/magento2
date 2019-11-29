@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dev01
- * Date: 10.11.17
- * Time: 17:20
- */
 
 namespace EMS\Pay\Model;
 
-use \EMS\Pay\Model\Method\EmsAbstractMethod;
+use EMS\Pay\Model\Method\EmsAbstractMethod;
 use Magento\Directory\Model\CurrencyFactory;
 
 class Response
@@ -59,13 +53,11 @@ class Response
 
     protected $_currencyFactory;
 
-
     public function __construct(
        CurrencyFactory $currencyFactory,
        Hash $hash,
        array $response
-    )
-    {
+    ) {
         $this->_currencyFactory = $currencyFactory;
         $this->_hashHandler = $hash;
         $this->_response = $response;
@@ -114,7 +106,7 @@ class Response
      */
     public function getTextCurrencyCode()
     {
-        if(null === $this->_currency) {
+        if (null === $this->_currency) {
             $this->_currency = $this->_currencyFactory->create();
         }
         return $this->_currency->getTextCurrencyCode($this->_response[self::FIELD_CURRENCY]);
@@ -131,7 +123,8 @@ class Response
     /**
      * @return string
      */
-    public function getCcBrand() {
+    public function getCcBrand()
+    {
         return $this->_getField(self::FIELD_CC_BRAND);
     }
 
@@ -234,6 +227,7 @@ class Response
     /**
      * @param EmsAbstractMethod $payment
      * @return bool
+     * @throws \Exception
      */
     public function validate(EmsAbstractMethod $payment)
     {
@@ -246,6 +240,7 @@ class Response
     /**
      * @param EmsAbstractMethod $payment
      * @return bool
+     * @throws \Exception
      */
     protected function _validateHash(EmsAbstractMethod $payment)
     {
@@ -275,7 +270,7 @@ class Response
     }
 
     /**
-     * @param AbstractMethod $payment
+     * @param EmsAbstractMethod $payment
      * @return bool
      * @throws \Exception
      */
@@ -331,6 +326,24 @@ class Response
     protected function _getField($field)
     {
         return isset($this->_response[$field]) ? $this->_response[$field] : '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getResponse()
+    {
+        return $this->_response;
+    }
+
+    /**
+     * @param $array
+     * @return array
+     */
+    public function setResponse($array)
+    {
+        $this->_response = $array;
+        return $this->getResponse();
     }
 
     /**
