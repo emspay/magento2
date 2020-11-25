@@ -1,5 +1,18 @@
-# EMS payments for Magento
-Accept payments in Magento with the official EMS e-Commerce gateway plugin.
+# Deprecated - EMS payments for Magento
+
+
+**PLEASE NOTE that this plugin is classified as deprecated!**
+
+
+
+
+
+
+
+-------
+
+
+Accept payments in Magento with the  EMS e-Commerce IPG gateway plugin.
 
 ## Description
 This plugin will add support for the following EMS payments methods to your Magento 2 webshop:
